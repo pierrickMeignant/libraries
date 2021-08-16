@@ -1,0 +1,4 @@
+.modal-content.no-background {
+  background: transparent;
+  border: 0;
+}

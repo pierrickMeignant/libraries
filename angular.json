@@ -1,0 +1,75 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "modal": {
+      "projectType": "library",
+      "schematics": {
+        "@schematics/angular:application": {
+          "strict": true
+        }
+      },
+      "root": "projects/modal",
+      "sourceRoot": "projects/modal/src",
+      "prefix": "",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/modal/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/modal/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/modal/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/modal/src/test.ts",
+            "tsConfig": "projects/modal/tsconfig.spec.json",
+            "karmaConfig": "projects/modal/karma.conf.js"
+          }
+        }
+      }
+    },
+    "subscription": {
+      "projectType": "library",
+      "root": "projects/subscription",
+      "sourceRoot": "projects/subscription/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/subscription/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/subscription/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/subscription/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/subscription/src/test.ts",
+            "tsConfig": "projects/subscription/tsconfig.spec.json",
+            "karmaConfig": "projects/subscription/karma.conf.js"
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "modal"
+}
