@@ -1,8 +1,8 @@
-import {AfterViewInit, Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild} from '@angular/core';
 import {ModalController} from '../../models/modal-controller';
 import {ModalContext} from '../../models/modal-context';
 import {ModalListener} from '../../models/modal-listener';
-import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {ModalUtilsImpl} from '../../utils/modal-utils-impl';
 import {ModalComponent} from '../modal/modal.component';
 import {ModalType} from '../../models/modal-type';
@@ -21,6 +21,16 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
   header?: TemplateRef<any>;
   @Input()
   headerReducible?: TemplateRef<any>;
+
+  @Output()
+  beforeOpen = new EventEmitter<() => BehaviorSubject<boolean>>();
+  @Output()
+  beforeClose = new EventEmitter<() => BehaviorSubject<boolean>>();
+  @Output()
+  afterOpen = new EventEmitter<void>();
+  @Output()
+  afterClose = new EventEmitter<void>();
+
   reduciblePlacement = 0;
 
   private activate = false;
@@ -28,20 +38,12 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
   private numberReducing = 0;
   private reducible = false;
   private idReducible?: string;
-  private modalContext: ModalContext = {disables: {},
-  open: {},
-  close: {
-    after: () => {
-      let reducing: boolean | undefined = undefined;
-      let placement = this.reduciblePlacement;
-      if (this.reducible) {
-        reducing = false;
-        this.reducible = false;
-        this.reduciblePlacement--;
-      }
-      ModalUtilsImpl.reduceEvent.next({reducing, placement});
+  private modalContext: ModalContext = {
+    disables: {},
+    open: {},
+    close: {
     }
-  }};
+  };
   @ViewChild('modal') private modal?: ModalComponent;
 
 
@@ -51,6 +53,14 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
 
   ngOnInit(): void {
     ModalUtilsImpl.addEnableModal(() => this.idReducible, this);
+    ModalUtilsImpl.prepareContextWithEmitters(() => this.modalContext, () => this.beforeOpen,
+                                              () => this.afterOpen, () => this.beforeClose,
+                                              () => new EventEmitter<void>());
+    let after = () => {};
+    if (this.afterClose.observers.length > 0) {
+      after = () => this.afterClose.next();
+    }
+    this.setAfterClose(after);
 
     this.addObservable(ModalUtilsImpl.reducing(),isReduce => {
       if (isReduce.reducing !== undefined) {
@@ -83,27 +93,11 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
   }
 
   @Input()
-  set beforeOpen(beforeOpen: () => (boolean | Observable<boolean>)) {
-    this.modalContext.open!.before = () => beforeOpen();
-  }
-
-  @Input()
-  set afterOpen(afterOpen: () => void) {
-    this.modalContext.open!.after = () => afterOpen();
-  }
-
-  @Input()
   set closeAction(close: ModalAction) {
     this.modalContext.close = close;
   }
 
-  @Input()
-  set beforeClose(beforeClose: () => (boolean | Observable<boolean>)) {
-    this.modalContext.close!.before = () => beforeClose();
-  }
-
-  @Input()
-  set afterClose(afterClose: () => void) {
+  private setAfterClose(afterClose: () => void) {
     this.modalContext.close!.after = () => {
       let reducing: boolean | undefined = undefined;
       let placement = this.reduciblePlacement;

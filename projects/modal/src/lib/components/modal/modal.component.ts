@@ -31,6 +31,15 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
   @Output()
   signalClose = new EventEmitter<() => BehaviorSubject<boolean>>();
 
+  @Output()
+  beforeOpen = new EventEmitter<() => BehaviorSubject<boolean>>();
+  @Output()
+  beforeClose = new EventEmitter<() => BehaviorSubject<boolean>>();
+  @Output()
+  afterOpen = new EventEmitter<void>();
+  @Output()
+  afterClose = new EventEmitter<void>();
+
   closeBind: () => void = this.close.bind(this);
   readonly isReducible = false;
 
@@ -46,13 +55,6 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
       before: () => true
     },
     disables: {
-      body: false,
-      footer: false,
-      header: false,
-      cross: false,
-      button: false,
-      decorator: false,
-      background: false
     }
   };
   private openReceipt = new BehaviorSubject<ModalContext | undefined>(undefined);
@@ -67,6 +69,9 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
   }
 
   ngOnInit(): void {
+    ModalUtilsImpl.prepareContextWithEmitters(() => this.modalContext, () => this.beforeOpen,
+                                              () => this.afterOpen, () => this.beforeClose,
+                                              () => this.afterClose);
   }
 
 
@@ -85,7 +90,7 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
     this.modalContext.content!.title = context.content?.title;
 
     if (context.disables) {
-      this.updateDisables(() => this.modalContext, context);
+      ModalUtilsImpl.updateDisables(() => this.modalContext, context, this.modalContext.disables!);
     }
     const buttonCloseName = context.content?.buttonCloseName;
     if (buttonCloseName) {
@@ -155,28 +160,8 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
   }
 
   @Input()
-  set beforeOpen(beforeOpen: () => (boolean | Observable<boolean>)) {
-    this.modalContext.open!.before = () => beforeOpen();
-  }
-
-  @Input()
-  set afterOpen(afterOpen: () => void) {
-    this.modalContext.open!.after = () => afterOpen();
-  }
-
-  @Input()
   set closeAction(close: ModalAction) {
     this.modalContext.close = close;
-  }
-
-  @Input()
-  set beforeClose(beforeClose: () => (boolean | Observable<boolean>)) {
-    this.modalContext.close!.before = () => beforeClose();
-  }
-
-  @Input()
-  set afterClose(afterClose: () => void) {
-    this.modalContext.close!.after = () => afterClose();
   }
 
   @Input()
@@ -272,7 +257,7 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
     this.currentContext = this.modalContext;
     if (this.couldDoEnable(true)) {
       if (context) {
-        this.prepareOpen(context);
+        ModalUtilsImpl.prepareOpen(context, this.modalContext);
       }
       this.activate('open');
     }
@@ -289,7 +274,7 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
       return undefined;
     }
     if (context) {
-      this.prepareOpen(context);
+      ModalUtilsImpl.prepareOpen(context, this.modalContext);
     }
 
     const beforeOpen = new BehaviorSubject<(() => BehaviorSubject<boolean>) | undefined>(undefined);
@@ -304,7 +289,7 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
       disables: this.currentContext.disables,
       timeout: this.currentContext.timeout
     };
-    setTimeout(() => this.activate('open'), 10);
+    setTimeout(() => this.activate('open'), 2);
     return {
       open: {
         before: () => beforeOpen.asObservable().pipe(skip(1), take(1)),
@@ -356,7 +341,7 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
     const could = new BehaviorSubject(false);
     if (before().observers.length > 0) {
       before().next(() => could);
-      return could.pipe(skip(1), take(1));
+      return could.pipe(skip(1));
     }
     const beforeDefault = this.modalContext[keyContext]?.before;
     if (beforeDefault) {
@@ -387,7 +372,7 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
     if (before) {
       const result = before();
       if (isObservable(result)) {
-        result.subscribe(value => {
+        result.pipe(take(1)).subscribe(value => {
           this.sendBeforeEvent(keyContext, value);
           if (value) {
             this.executeEnable(keyContext);
@@ -424,54 +409,6 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
     if (!this.isEnable) {
       this.currentContext = this.modalContext;
     }
-  }
-
-  /**
-   * create current context in this session (merge default context with context establish to session)
-   * @param context context created to session
-   * @private
-   */
-  private prepareOpen(context: ModalContext | undefined): void {
-    if (context) {
-      const contextModal: ModalContext = {
-        content: {},
-        timeout: context.timeout
-      };
-      contextModal.content!.title = context.content?.title ? context.content.title : this.modalContext.content?.title;
-      contextModal.content!.buttonCloseName = context.content?.buttonCloseName ? context.content.buttonCloseName
-                                                                               : this.modalContext.content?.buttonCloseName;
-      this.insertActions('open', context, () => contextModal);
-      this.insertActions('close', context, () => contextModal);
-      this.updateDisables(() => contextModal, context);
-      this.currentContext = contextModal;
-    }
-  }
-
-  private insertActions(keyContext: 'open' | 'close', context: ModalContext, contextModal: () => ModalContext): void {
-    const actions = context[keyContext];
-    if (actions) {
-      contextModal()[keyContext] = {
-        before: actions.before ? actions.before : this.modalContext[keyContext]?.before,
-        after: actions.after ? actions.after : this.modalContext[keyContext]?.after
-      };
-    }
-  }
-
-  private updateDisables(contextModal: () => ModalContext, context: ModalContext): void {
-    const disables = context.disables;
-    const defaultDisables = this.modalContext.disables!;
-    contextModal().disables = {
-      blackOverride: disables?.blackOverride ? disables.blackOverride : defaultDisables.blackOverride,
-      center: disables?.center ? disables.center : defaultDisables.center,
-      scrollable: disables?.scrollable ? disables.scrollable : defaultDisables.scrollable,
-      button: disables?.button ? disables.button : defaultDisables.button,
-      background: disables?.background ? disables.background : defaultDisables.background,
-      cross: disables?.cross ? disables.cross : defaultDisables.cross,
-      header: disables?.header ? disables.header : defaultDisables.header,
-      footer: disables?.footer ? disables.footer : defaultDisables.footer,
-      body: disables?.body ? disables.body : defaultDisables.body,
-      decorator: disables?.decorator ? disables.decorator : defaultDisables.decorator,
-    };
   }
 
   private timeoutExecute(): number {

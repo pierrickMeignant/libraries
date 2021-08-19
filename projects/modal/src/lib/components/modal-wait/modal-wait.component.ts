@@ -1,10 +1,10 @@
-import {AfterViewInit, Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild} from '@angular/core';
 import {ShapeWait} from '../../models/shape-wait.enum';
 import {ColorWait} from '../../models/color-wait.enum';
 import {ModalController} from '../../models/modal-controller';
 import {ModalContext} from '../../models/modal-context';
 import {ModalListener} from '../../models/modal-listener';
-import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {ModalUtilsImpl} from '../../utils/modal-utils-impl';
 import {ModalComponent} from '../modal/modal.component';
 import {ModalType} from '../../models/modal-type';
@@ -25,11 +25,22 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
   @Input()
   textWait?: string;
 
+  @Output()
+  beforeOpen = new EventEmitter<() => BehaviorSubject<boolean>>();
+  @Output()
+  beforeClose = new EventEmitter<() => BehaviorSubject<boolean>>();
+  @Output()
+  afterOpen = new EventEmitter<void>();
+  @Output()
+  afterClose = new EventEmitter<void>();
+
   private shapeWait: ShapeWait = ShapeWait.ROUND;
   private colorWait: ColorWait = ColorWait.DARK_BLUE;
   private colorTextWait: ColorWait = ColorWait.DARK_BLUE;
   private modalContext: ModalContext = {
-    disables: {}
+    disables: {},
+    open:{},
+    close: {}
   };
 
   @ViewChild('modalWait') private modal?: ModalComponent;
@@ -45,6 +56,9 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
 
   ngOnInit(): void {
     ModalUtilsImpl.addEnableModal(() => this.idWaitModal, this);
+    ModalUtilsImpl.prepareContextWithEmitters(() => this.modalContext, () => this.beforeOpen,
+                                              () => this.afterOpen, () => this.beforeClose,
+                                              () => this.afterClose);
   }
 
   ngAfterViewInit(): void {
@@ -93,28 +107,8 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
   }
 
   @Input()
-  set beforeOpen(beforeOpen: () => (boolean | Observable<boolean>)) {
-    this.modalContext.open!.before = () => beforeOpen();
-  }
-
-  @Input()
-  set afterOpen(afterOpen: () => void) {
-    this.modalContext.open!.after = () => afterOpen();
-  }
-
-  @Input()
   set closeAction(close: ModalAction) {
     this.modalContext.close = close;
-  }
-
-  @Input()
-  set beforeClose(beforeClose: () => (boolean | Observable<boolean>)) {
-    this.modalContext.close!.before = () => beforeClose();
-  }
-
-  @Input()
-  set afterClose(afterClose: () => void) {
-    this.modalContext.close!.after = () => afterClose();
   }
 
   @Input()
@@ -227,10 +221,10 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
   }
 
   open(context?: ModalContext): void {
-    this.modal?.open();
+    this.modal?.open(context);
   }
 
   openWithListener(context?: ModalContext): ModalListener | undefined {
-    return this.modal?.openWithListener();
+    return this.modal?.openWithListener(context);
   }
 }
