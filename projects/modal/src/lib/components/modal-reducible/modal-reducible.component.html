@@ -1,0 +1,31 @@
+<div class="w-100 h-100" [ngClass]="{reduce: isReducible, one: reduciblePlacement === 1,
+two: reduciblePlacement === 2, three: reduciblePlacement === 3, four: reduciblePlacement === 4,
+five: reduciblePlacement >= 5}">
+  <modal [body]="body" [header]="headerTemplate"
+         footerDisable="true" #modal></modal>
+</div>
+
+
+<ng-template #headerTemplate let-close="close" let-id="id">
+  <section class="row w-100">
+    <div class="col-11">
+      <ng-container [ngTemplateOutlet]="selectHeader(emptyHeader)" [ngTemplateOutletContext]="{close: close,
+      id: id, reduce: reduceOpen.bind(this)}">
+      </ng-container>
+    </div>
+    <section class="col-1">
+      <button *ngIf="id" [id]="id + '_reducible'" (click)="reduceOpen()" type="button" class="bg-transparent border-0 float-end">
+        <span *ngIf="!isReducible">&#x2500;</span>
+        <span *ngIf="isReducible">&#x25A1;</span>
+      </button>
+      <button *ngIf="!id" (click)="reduceOpen()" type="button" class="bg-transparent border-0 float-end">
+        <span *ngIf="!isReducible">&#x2500;</span>
+        <span *ngIf="isReducible">&#x25A1;</span>
+      </button>
+    </section>
+  </section>
+</ng-template>
+
+<ng-template #emptyHeader>
+  <ng-container *ngIf="title">{{title}}</ng-container>
+</ng-template>

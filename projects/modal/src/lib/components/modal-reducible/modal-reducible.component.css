@@ -1,0 +1,45 @@
+.reduce ::ng-deep .modal {
+  width: 20%!important;
+  height: fit-content;
+  display: flex;
+  bottom: 0;
+  top: unset;
+  left: unset;
+  z-index: 1100;
+}
+
+.reduce.one ::ng-deep .modal {
+  right: 0;
+}
+
+.reduce.two ::ng-deep .modal {
+  right: 20%;
+}
+
+.reduce.three ::ng-deep .modal {
+  right: 40%;
+}
+
+.reduce.four ::ng-deep .modal {
+  right: 60%;
+}
+
+.reduce.five ::ng-deep .modal {
+  right: 80%;
+}
+
+.reduce ::ng-deep .modal-dialog {
+  margin: 0;
+}
+
+.reduce ::ng-deep .modal-backdrop {
+  display: none;
+}
+
+.reduce ::ng-deep .modal-body, .reduce ::ng-deep.modal-footer {
+  display: none;
+}
+
+.reduce ::ng-deep .modal-header {
+  font-size: 0.7rem;
+}
