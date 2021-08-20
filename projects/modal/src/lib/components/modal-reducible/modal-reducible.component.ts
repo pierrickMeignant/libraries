@@ -21,6 +21,8 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
   header?: TemplateRef<any>;
   @Input()
   headerReducible?: TemplateRef<any>;
+  @Input()
+  title?: string;
 
   @Output()
   beforeOpen = new EventEmitter<() => BehaviorSubject<boolean>>();
@@ -163,15 +165,6 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
    * @param context context to session
    */
   openWithListener(context?: ModalContext): ModalListener | undefined {
-    if (!this.header || !this.headerReducible) {
-      let message = 'miss template.s: [ ' + (!this.headerReducible ? 'headerReducible, ' : '') + (!this.header ? 'header' : '');
-      if (message.endsWith(', ')) {
-        message = message.slice(0, message.length - 2);
-      }
-      message += ']';
-      ModalUtilsImpl.beforeOpenEvent.next({id: this.idReducible, accept: false, message, type: ModalType.REDUCIBLE });
-      return undefined;
-    }
     return this.modal?.openWithListener(context);
   }
 
@@ -194,7 +187,7 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
     ModalUtilsImpl.reduceEvent.next({reducing: this.reducible, placement: this.reduciblePlacement});
   }
 
-  selectHeader(): TemplateRef<any> {
-    return this.isReducible ? this.headerReducible! : this.header!;
+  selectHeader(emptyHeader: TemplateRef<any>): TemplateRef<any> {
+    return this.isReducible ? this.headerReducible! : this.header ? this.header : emptyHeader;
   }
 }
