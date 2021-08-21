@@ -10,6 +10,10 @@
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "paths": {
+      "accordion": [
+        "dist/accordion/accordion",
+        "dist/accordion"
+      ],
       "modal": [
         "dist/modal/modal",
         "dist/modal"
