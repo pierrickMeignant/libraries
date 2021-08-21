@@ -8,6 +8,7 @@ import {ModalComponent} from '../modal/modal.component';
 import {ModalType} from '../../models/modal-type';
 import {ModalAction} from '../../models/modal-action';
 import {SubscriptionDestroyer} from 'subscription-destroyer';
+import {ModalOpenClose} from '../../models/modal-open-close';
 
 @Component({
              selector: 'modal-reducible',
@@ -23,6 +24,13 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
   headerReducible?: TemplateRef<any>;
   @Input()
   title?: string;
+
+  @Output()
+  signalOpen = new EventEmitter<(context?: ModalContext) => ModalListener | undefined>();
+  @Output()
+  signalClose = new EventEmitter<() => void>();
+  @Output()
+  signals = new EventEmitter<ModalOpenClose>();
 
   @Output()
   beforeOpen = new EventEmitter<() => BehaviorSubject<boolean>>();
@@ -76,6 +84,12 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
         this.numberReducing += removeOrAddReducible;
       }
     });
+
+    const open = (context?: ModalContext) => this.openWithListener(context);
+    const close = () => this.close();
+    this.signals.next({open,close});
+    this.signalClose.next(close);
+    this.signalOpen.next(open);
   }
 
   ngAfterViewInit(): void {

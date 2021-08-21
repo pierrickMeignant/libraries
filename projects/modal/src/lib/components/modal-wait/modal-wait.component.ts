@@ -10,6 +10,7 @@ import {ModalComponent} from '../modal/modal.component';
 import {ModalType} from '../../models/modal-type';
 import {ModalAction} from '../../models/modal-action';
 import {SubscriptionDestroyer} from 'subscription-destroyer';
+import {ModalOpenClose} from '../../models/modal-open-close';
 
 @Component({
   selector: 'modal-wait',
@@ -24,6 +25,13 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
 
   @Input()
   textWait?: string;
+
+  @Output()
+  signalOpen = new EventEmitter<(context?: ModalContext) => ModalListener | undefined>();
+  @Output()
+  signalClose = new EventEmitter<() => void>();
+  @Output()
+  signals = new EventEmitter<ModalOpenClose>();
 
   @Output()
   beforeOpen = new EventEmitter<() => BehaviorSubject<boolean>>();
@@ -59,6 +67,11 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
     ModalUtilsImpl.prepareContextWithEmitters(() => this.modalContext, () => this.beforeOpen,
                                               () => this.afterOpen, () => this.beforeClose,
                                               () => this.afterClose);
+    const open = (context?: ModalContext) => this.openWithListener(context);
+    const close = () => this.close();
+    this.signals.next({open,close});
+    this.signalClose.next(close);
+    this.signalOpen.next(open);
   }
 
   ngAfterViewInit(): void {

@@ -8,12 +8,12 @@ five: reduciblePlacement >= 5}">
 
 <ng-template #headerTemplate let-close="close" let-id="id">
   <section class="row w-100">
-    <div class="col-11">
+    <div [ngClass]="{'col-11': !isReducible, 'col-10': isReducible}">
       <ng-container [ngTemplateOutlet]="selectHeader(emptyHeader)" [ngTemplateOutletContext]="{close: close,
       id: id, reduce: reduceOpen.bind(this)}">
       </ng-container>
     </div>
-    <section class="col-1">
+    <section [ngClass]="{'col-1': !isReducible, 'col-2': isReducible}">
       <button *ngIf="id" [id]="id + '_reducible'" (click)="reduceOpen()" type="button" class="bg-transparent border-0 float-end">
         <span *ngIf="!isReducible">&#x2500;</span>
         <span *ngIf="isReducible">&#x25A1;</span>
