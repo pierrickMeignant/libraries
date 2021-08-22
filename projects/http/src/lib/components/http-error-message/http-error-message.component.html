@@ -1,0 +1,7 @@
+<modal footerDisable="true" id="httpError" [body]="body" [title]="title" (signalOpen)="open($event)"
+       (afterOpen)="onOpen()"
+       (afterClose)="onClose()"></modal>
+
+<ng-template #body>
+  <accordion id="httpErrorMessage" [items]="errors"></accordion>
+</ng-template>
