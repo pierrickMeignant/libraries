@@ -1,0 +1,67 @@
+
+<div class="w-100 h-100" [ngClass]="{noReduce: !modal.isReducible}">
+  <modal-reducible footerDisable="true" [header]="header" [headerReducible]="reduceTemplate" (signals)="signals($event)"
+                   (afterOpen)="afterOpenModal()"
+                   (afterClose)="afterCloseModal()" id="httpDownload" [body]="body" #modal></modal-reducible>
+</div>
+
+
+<ng-template #body>
+  <ng-container *ngIf="downloads.size > 0">
+    <div class="list-group list-group-flush">
+      <div class="list-group-item border-0 p-0">
+        <ng-container *ngFor="let key of keys" [ngTemplateOutlet]="downloadTemplate" [ngTemplateOutletContext]="{name: key, download: downloads.get(key)}">
+        </ng-container>
+      </div>
+    </div>
+  </ng-container>
+</ng-template>
+
+<ng-template #header>
+  <img class="img-download float-end" *ngIf="saveAllEnable" (click)="saveAll()"
+       src="data:image/png;base64,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" alt="save file">
+</ng-template>
+
+<ng-template let-download="download" let-name="name" #downloadTemplate>
+  <div class="row w-100 pb-2" [ngClass]="{'download-disable': !download.isEnable}">
+    <div class="col-4 ps-1">
+      <div class="input-group">
+        <span class="input-group-text">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" *ngIf="!download.file">
+            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" *ngIf="download.file">
+           <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"></path>
+          </svg>
+        </span>
+          <input class="form-control"
+                 [readOnly]="!download.file" [(ngModel)]="download.name">
+      </div>
+    </div>
+    <div class="col-7 p-2">
+      <ng-container [ngTemplateOutlet]="progressBar" [ngTemplateOutletContext]="{percent: download.percent}"></ng-container>
+    </div>
+    <div class="col-1 pt-2">
+      <ng-container *ngIf="download.isEnable">
+        <button type="button" *ngIf="!download.file" (click)="stopDownload(download)" class="btn-close"></button>
+        <ng-container *ngIf="download.file">
+          <img class="img-download" (click)="linkSave.click()"
+               src="data:image/png;base64,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" alt="save file">
+          <a class="w-0 h-0" [id]="name"  [href]="createUrl(name, download.file)" [attr.download]="download.name" #linkSave></a>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template let-percent="percent" #progressBar>
+  <div class="progress-bar" [ngClass]="{'bg-danger': percent < 30, 'bg-middle': percent >= 30 && percent < 75, 'bg-success': percent >= 75}"
+       role="progressbar" [attr.style]="'width: ' + percent + '%'" [attr.aria-valuenow]="percent"
+       aria-valuemin="0" aria-valuemax="100" *ngIf="percent">{{ percent }}%</div>
+</ng-template>
+
+<ng-template let-open="open" #reduceTemplate>
+  <div class="w-100" (click)="open()">
+    <ng-container [ngTemplateOutlet]="progressBar" [ngTemplateOutletContext]="{percent: percents}"></ng-container>
+  </div>
+</ng-template>

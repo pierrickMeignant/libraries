@@ -8,3 +8,4 @@ export * from './modal-event';
 export * from './modal-listener';
 export * from './modal-timeout';
 export * from './shape-wait.enum';
+export * from './modal-open-close';

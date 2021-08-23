@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output, TemplateRef} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, TemplateRef} from '@angular/core';
 import {BehaviorSubject, isObservable, Observable} from 'rxjs';
 import {skip, take} from 'rxjs/operators';
 import {ModalController} from '../../models/modal-controller';
@@ -12,13 +12,14 @@ import {ModalContent} from '../../models/modal-content';
 import {ModalListener} from '../../models/modal-listener';
 import {ModalTimeoutUnit} from '../../models/modal-timeout-unit';
 import {SubscriptionDestroyer} from 'subscription-destroyer';
+import {ModalOpenClose} from '../../models/modal-open-close';
 
 @Component({
   selector: 'modal',
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.css'],
 })
-export class ModalComponent extends SubscriptionDestroyer implements OnInit, AfterViewInit, ModalController {
+export class ModalComponent extends SubscriptionDestroyer implements OnInit, ModalController {
   @Input()
   header?: TemplateRef<any>;
   @Input()
@@ -27,9 +28,12 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
   footer?: TemplateRef<any>;
 
   @Output()
-  signalOpen = new EventEmitter<() => BehaviorSubject<ModalContext | undefined>>();
+  signalOpen = new EventEmitter<(context?: ModalContext) => ModalListener | undefined>();
   @Output()
-  signalClose = new EventEmitter<() => BehaviorSubject<boolean>>();
+  signalClose = new EventEmitter<() => void>();
+
+  @Output()
+  signals = new EventEmitter<ModalOpenClose>();
 
   @Output()
   beforeOpen = new EventEmitter<() => BehaviorSubject<boolean>>();
@@ -57,8 +61,6 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
     disables: {
     }
   };
-  private openReceipt = new BehaviorSubject<ModalContext | undefined>(undefined);
-  private closeReceipt = new BehaviorSubject(false);
 
   private currentContext: ModalContext = {};
   private patternIsNumeric = new RegExp("[0-9]+");
@@ -69,19 +71,15 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Aft
   }
 
   ngOnInit(): void {
+    ModalUtilsImpl.addEnableModal(() => this.id, this);
     ModalUtilsImpl.prepareContextWithEmitters(() => this.modalContext, () => this.beforeOpen,
                                               () => this.afterOpen, () => this.beforeClose,
                                               () => this.afterClose);
-  }
-
-
-  ngAfterViewInit(): void {
-    this.addSubscription(this.openReceipt.pipe(skip(1)).subscribe(value => this.open(value)));
-    this.addSubscription(this.closeReceipt.subscribe(value => value ? this.close() : undefined));
-    this.signalOpen.next(() => this.openReceipt);
-    this.signalClose.next(() => this.closeReceipt);
-
-    ModalUtilsImpl.addEnableModal(() => this.id, this);
+    const open = (context?: ModalContext) => this.openWithListener(context);
+    const close = () => this.close();
+    this.signalOpen.next(open);
+    this.signalClose.next(close);
+    this.signals.next({open, close});
   }
 
   @Input()
