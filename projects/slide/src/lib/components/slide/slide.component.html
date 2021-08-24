@@ -1,0 +1,83 @@
+<div class="carousel slide h-100 text-center"
+     [ngClass]="{'carousel-fade': isFade, 'carousel-vertical': isVertical}"
+     (mouseenter)="carouselMouseEnter()" (mouseleave)="carouselMouseLeave()"
+     (touchmove)="androidEventMove($event, false)"
+     (touchstart)="androidEventMove($event, true)">
+  <div class="carousel-indicators" *ngIf="enableIndicators">
+    <ng-container *ngFor="let item of slideItems; let index = index" [ngTemplateOutlet]="indicatorsTemplate"
+                  [ngTemplateOutletContext]="{index: index, color: item.colorIndicator}"></ng-container>
+
+  </div>
+  <div class="carousel-inner h-100">
+    <div id="test" class="carousel-item bg-opacity-25 bg-dark h-100 w-100 p-0" [ngClass]="{active: index === indexActive || (index === 0 && indexActive === -1)}" #itemTemplate *ngFor="let item of slideItems; let index = index; let isFirst = first; let isLast = last">
+      <ng-container *ngIf="insertTemplateOnItem(item, itemTemplate)" [ngTemplateOutlet]="item.itemViewer ? item.itemViewer : itemView ? itemView : defaultItemViewer"
+                    [ngTemplateOutletContext]="{item: item.item, index: index, isFirst: isFirst,
+    isLast: isLast}">
+      </ng-container>
+      <div class="carousel-caption d-none d-md-block" *ngIf="item.captionViewer || captionView">
+        <ng-container [ngTemplateOutlet]="item.captionViewer ? item.captionViewer : captionView!"
+        [ngTemplateOutletContext]="{item: item.caption ? item.caption : item.item, index: index,
+        isFirst: isFirst, isLast: isLast}"></ng-container>
+      </div>
+    </div>
+  </div>
+  <ng-container *ngIf="isControlArrowPrev || isControlArrowNext" [ngTemplateOutlet]="arrowsTemplate"
+                [ngTemplateOutletContext]="{colorNext: itemActive.colorArrowNext,
+                colorPrev: itemActive.colorArrowPrev, color: itemActive.colorArrow}">
+  </ng-container>
+
+</div>
+
+<ng-template #defaultItemViewer let-item="item">
+  {{item}}
+</ng-template>
+
+<ng-template let-index="index" let-color="color" #indicatorsTemplate>
+  <button *ngIf="isColor(color ? color : defaultColorIndicators)" type="button" data-bs-target
+          [ngClass]="{active: index === indexActive || (index === 0 && indexActive === -1),
+     'bg-primary': isDarkBlue(color ? color : defaultColorIndicators),
+     'bg-secondary': isGrey(color ? color : defaultColorIndicators),
+     'bg-success': isGreen(color ? color : defaultColorIndicators),
+     'bg-danger': isRed(color ? color : defaultColorIndicators),
+     'bg-warning': isYellow(color ? color : defaultColorIndicators),
+     'bg-info': isBlue(color ? color : defaultColorIndicators),
+     'bg-light': isWhite(color ? color : defaultColorIndicators),
+     'bg-dark': isBlack(color ? color : defaultColorIndicators)}"
+          (click)="switchSlideInto(index)" ></button>
+  <button *ngIf="!isColor(color ? color : defaultColorIndicators)" type="button" data-bs-target
+          [ngClass]="{active: index === indexActive || (index === 0 && indexActive === -1)}"
+          (click)="switchSlideInto(index)" [style.background-color]="toRGB(color ? color : defaultColorIndicators)" ></button>
+</ng-template>
+
+<ng-template let-colorNext="colorNext" let-colorPrev="colorPrev" let-color="color" #arrowsTemplate>
+  <ng-container [ngTemplateOutlet]="arrow" [ngTemplateOutletContext]="{enable: isControlArrowPrev, move: -1,
+  color: colorPrev ? colorPrev : color, defaultColor: defaultColorArrowPrev, control: 'prev', label: 'Previous'}"></ng-container>
+  <ng-container [ngTemplateOutlet]="arrow" [ngTemplateOutletContext]="{enable: isControlArrowNext, move: 1,
+  color: colorNext ? colorNext : color, defaultColor: defaultColorArrowNext, control: 'next', label: 'Next'}"></ng-container>
+</ng-template>
+
+<ng-template let-enable="enable" let-move="move" let-color="color" let-defaultColor="defaultColor"
+             let-control="control" let-label="label"
+             #arrow>
+  <ng-container *ngIf="enable">
+    <button *ngIf="isColor(color ? color : defaultColor)" (click)="switchSlide(move)" [ngClass]="{
+     'text-primary': isDarkBlue(color ? color : defaultColor),
+     'text-secondary': isGrey(color ? color : defaultColor),
+     'text-success': isGreen(color ? color : defaultColor),
+     'text-danger': isRed(color ? color : defaultColor),
+     'text-warning': isYellow(color ? color : defaultColor),
+     'text-info': isBlue(color ? color : defaultColor),
+     'text-light': isWhite(color ? color : defaultColor),
+     'text-dark': isBlack(color ? color : defaultColor)}"
+            [class]="'carousel-control-' + control" type="button">
+      <span [class]="'carousel-control-' + control + '-icon'"></span>
+      <span class="visually-hidden">{{label}}</span>
+    </button>
+    <button *ngIf="!isColor(color ? color : defaultColor)" (click)="switchSlide(move)"
+            [class]="'carousel-control-' + control" type="button" [style.color]="toRGB(color ? color : defaultColor)">
+      <span [class]="'carousel-control-' + control + '-icon'"></span>
+      <span class="visually-hidden">{{label}}</span>
+    </button>
+  </ng-container>
+
+</ng-template>

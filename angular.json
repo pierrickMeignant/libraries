@@ -131,6 +131,37 @@
           }
         }
       }
+    },
+    "slide": {
+      "projectType": "library",
+      "root": "projects/slide",
+      "sourceRoot": "projects/slide/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/slide/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/slide/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/slide/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/slide/src/test.ts",
+            "tsConfig": "projects/slide/tsconfig.spec.json",
+            "karmaConfig": "projects/slide/karma.conf.js"
+          }
+        }
+      }
     }
   },
   "defaultProject": "modal"

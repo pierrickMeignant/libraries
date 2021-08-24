@@ -22,6 +22,10 @@
         "dist/modal/modal",
         "dist/modal"
       ],
+      "slide": [
+        "dist/slide/slide",
+        "dist/slide"
+      ],
       "subscription": [
         "dist/subscription/subscription",
         "dist/subscription"
