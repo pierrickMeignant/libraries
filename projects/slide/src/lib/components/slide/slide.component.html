@@ -1,0 +1,38 @@
+<div class="carousel slide h-100 text-center"
+     [ngClass]="{'carousel-fade': isFade, 'carousel-vertical': isVertical}"
+     (mouseenter)="carouselMouseEnter()" (mouseleave)="carouselMouseLeave()"
+     (touchmove)="androidEventMove($event, false)"
+     (touchstart)="androidEventMove($event, true)">
+  <div class="carousel-indicators" *ngIf="hasIndicator">
+    <button type="button" data-bs-target [ngClass]="{active: index === indexActive || (index === 0 && indexActive === -1)}"
+            (click)="switchSlideInto(index)" *ngFor="let item of slideItems; let index = index"></button>
+  </div>
+  <div class="carousel-inner h-100">
+    <div class="carousel-item bg-secondary h-100 w-100 p-0" [ngClass]="{active: index === indexActive || (index === 0 && indexActive === -1)}" #itemTemplate *ngFor="let item of slideItems; let index = index; let isFirst = first; let isLast = last">
+      <ng-container *ngIf="insertTemplateOnItem(item, itemTemplate)" [ngTemplateOutlet]="item.itemViewer ? item.itemViewer : itemViewer ? itemViewer : defaultItemViewer"
+                    [ngTemplateOutletContext]="{item: item.item, index: index, isFirst: isFirst,
+    isLast: isLast}">
+      </ng-container>
+      <div class="carousel-caption d-none d-md-block" *ngIf="item.captionViewer || captionViewer">
+        <ng-container [ngTemplateOutlet]="item.captionViewer ? item.captionViewer : captionViewer!"
+        [ngTemplateOutletContext]="{item: item.caption ? item.caption : item.item, index: index,
+        isFirst: isFirst, isLast: isLast}"></ng-container>
+      </div>
+    </div>
+  </div>
+  <ng-container *ngIf="hasControlArrowPrev || hasControlArrowNext">
+    <button *ngIf="hasControlArrowPrev" (click)="switchSlide(-1)" class="carousel-control-prev" type="button">
+      <span class="carousel-control-prev-icon"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button *ngIf="hasControlArrowNext" (click)="switchSlide(1)" class="carousel-control-next" type="button">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </ng-container>
+
+</div>
+
+<ng-template #defaultItemViewer let-item="item">
+  {{item}}
+</ng-template>
