@@ -37,3 +37,17 @@
 .carousel.carousel-vertical .carousel-control-next-icon, .carousel.carousel-vertical .carousel-control-prev-icon {
   transform: rotate(90deg);
 }
+
+.carousel-control-next-icon,
+.carousel-control-prev-icon {
+  background-image: none;
+  font-size: 40px;
+}
+
+.carousel-control-prev-icon:after {
+  content: '<';
+}
+
+.carousel-control-next-icon:after {
+  content: '>';
+}
