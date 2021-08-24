@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, Te
 import {SlideUtilsImpl} from "../../utils/slide-utils-impl";
 import {SlideItem} from "../../models/item/slide-item";
 import {SlideItemTemplate} from "../../models/item/slide-item-template";
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, Subscription} from "rxjs";
 import {skip, take} from "rxjs/operators";
 import {SlideTimeout} from "../../models/timeout/slide-timeout";
 import {SlideTimeoutUnit} from "../../types/slide-timeout-unit";
@@ -23,6 +23,8 @@ export class SlideComponent implements OnInit, OnDestroy {
   captionViewer?: TemplateRef<any>;
   @Output()
   slideEvent = new EventEmitter<SlideEvent>();
+  @Output()
+  slideMovecontroller = new EventEmitter<() => BehaviorSubject<SlideMove>>();
 
   hasControlArrowPrev = true;
   hasControlArrowNext = true;
@@ -40,6 +42,8 @@ export class SlideComponent implements OnInit, OnDestroy {
     prev: true
   };
   private firstTouch?: Touch;
+  private slideMoveControllerEmitter = new BehaviorSubject<SlideMove>(SlideMove.NEXT);
+  private listener?: Subscription;
 
 
   constructor(private renderer: Renderer2) { }
@@ -51,12 +55,17 @@ export class SlideComponent implements OnInit, OnDestroy {
     if (!this.isCircle) {
       this.closeCircle();
     }
+
+    this.listener = this.slideMoveControllerEmitter.pipe(skip(1)).subscribe(value => this.startSwitch(value));
+    this.slideMovecontroller.next(() => this.slideMoveControllerEmitter);
   }
 
   ngOnDestroy(): void {
     if (this.slideIntervalSwitch) {
       clearInterval(this.slideIntervalSwitch);
     }
+    this.listener?.unsubscribe();
+    this.listener = undefined;
   }
 
   @Input()
