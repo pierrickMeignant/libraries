@@ -1,4 +1,4 @@
-<div class="carousel slide h-100 text-center"
+<div class="carousel slide h-100 text-center" *ngIf="slideItems && slideItems.length > 0"
      [ngClass]="{'carousel-fade': isFade, 'carousel-vertical': isVertical}"
      (mouseenter)="carouselMouseEnter()" (mouseleave)="carouselMouseLeave()"
      (touchmove)="androidEventMove($event, false)"

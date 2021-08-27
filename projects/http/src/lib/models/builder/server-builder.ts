@@ -28,12 +28,12 @@ export class ServerBuilder extends HttpBuilderHeader<ServerBuilder> {
     return ServerBuilder.create(host, port, completeUrl, protocol);
   }
 
-  api(name: string, addName: boolean = true, ...completeUrl: string[]): ApiBuilder {
+  api(name: string, addName: boolean = true, ...completeUrl: string[]): ApiBuilder<ServerBuilder> {
     return this.createApiBuilder(name, addName, completeUrl);
   }
 
   createApi(name: string, headers: HttpHeaders | {[header: string]: string | string[]},
-            addName: boolean = true, ...completeUrl: string[]): ApiBuilder {
+            addName: boolean = true, ...completeUrl: string[]): ApiBuilder<ServerBuilder> {
     return this.createApiBuilder(name, addName, completeUrl).header(headers);
   }
 
@@ -42,7 +42,7 @@ export class ServerBuilder extends HttpBuilderHeader<ServerBuilder> {
     return new Server(this.apis);
   }
 
-  private createApiBuilder(name: string, addName: boolean, completeUrl: string[]): ApiBuilder {
+  private createApiBuilder(name: string, addName: boolean, completeUrl: string[]): ApiBuilder<ServerBuilder> {
     let urlApi = this.url + (addName ? '/' + name : '');
     completeUrl.forEach(value => urlApi += '/' + value);
     return new ApiBuilder(urlApi, api => {

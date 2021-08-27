@@ -14,6 +14,10 @@
         "dist/accordion/accordion",
         "dist/accordion"
       ],
+      "commonlibraries": [
+        "dist/commonlibraries/commonlibraries",
+        "dist/commonlibraries"
+      ],
       "http": [
         "dist/http/http",
         "dist/http"

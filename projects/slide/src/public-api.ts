@@ -7,3 +7,4 @@ export * from './lib/models/public-api.models';
 export * from './lib/utils/public-api.utils';
 export * from './lib/types/public-api.types';
 export * from './lib/slide.module';
+export * from 'commonlibraries/public-api.visible';

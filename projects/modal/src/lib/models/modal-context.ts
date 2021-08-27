@@ -1,11 +1,11 @@
 import {ModalAction} from './modal-action';
 import {ModalDisable} from './modal-disable';
 import {ModalContent} from './modal-content';
-import {ModalTimeout} from './modal-timeout';
+import {Timeout} from 'commonlibraries';
 
 export interface ModalContext {
   id?: string;
-  timeout?: ModalTimeout;
+  timeout?: Timeout;
   content?: ModalContent;
   open?: ModalAction;
   close?: ModalAction;

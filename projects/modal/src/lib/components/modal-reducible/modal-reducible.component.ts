@@ -7,15 +7,15 @@ import {ModalUtilsImpl} from '../../utils/modal-utils-impl';
 import {ModalComponent} from '../modal/modal.component';
 import {ModalType} from '../../models/modal-type';
 import {ModalAction} from '../../models/modal-action';
-import {SubscriptionDestroyer} from 'subscription-destroyer';
 import {ModalOpenClose} from '../../models/modal-open-close';
+import {Destroyer, propertyToBoolean} from 'commonlibraries';
 
 @Component({
              selector: 'modal-reducible',
              templateUrl: './modal-reducible.component.html',
              styleUrls: ['./modal-reducible.component.css']
            })
-export class ModalReducibleComponent extends SubscriptionDestroyer implements OnInit, ModalController, AfterViewInit {
+export class ModalReducibleComponent extends Destroyer implements OnInit, ModalController, AfterViewInit {
   @Input()
   body?: TemplateRef<any>;
   @Input()
@@ -129,37 +129,37 @@ export class ModalReducibleComponent extends SubscriptionDestroyer implements On
 
   @Input()
   set bodyDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.body = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.body = propertyToBoolean(disable);
   }
 
   @Input()
   set footerDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.footer = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.footer = propertyToBoolean(disable);
   }
 
   @Input()
   set decoratorDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.decorator = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.decorator = propertyToBoolean(disable);
   }
 
   @Input()
   set blackOverrideDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.blackOverride = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.blackOverride = propertyToBoolean(disable);
   }
 
   @Input()
   set centerDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.center = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.center = propertyToBoolean(disable);
   }
 
   @Input()
   set scrollableDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.scrollable = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.scrollable = propertyToBoolean(disable);
   }
 
   @Input()
   set active(isActive: boolean | 'true' | 'false') {
-    this.activate = ModalUtilsImpl.handlePropertyBoolean(isActive);
+    this.activate = propertyToBoolean(isActive);
   }
 
   get isActivate(): boolean {

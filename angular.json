@@ -1,5 +1,8 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "cli": {
+    "analytics": false
+  },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
@@ -159,6 +162,37 @@
             "main": "projects/slide/src/test.ts",
             "tsConfig": "projects/slide/tsconfig.spec.json",
             "karmaConfig": "projects/slide/karma.conf.js"
+          }
+        }
+      }
+    },
+    "commonlibraries": {
+      "projectType": "library",
+      "root": "projects/commonlibraries",
+      "sourceRoot": "projects/commonlibraries/src",
+      "prefix": "",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/commonlibraries/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/commonlibraries/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/commonlibraries/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/commonlibraries/src/test.ts",
+            "tsConfig": "projects/commonlibraries/tsconfig.spec.json",
+            "karmaConfig": "projects/commonlibraries/karma.conf.js"
           }
         }
       }

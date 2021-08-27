@@ -25,3 +25,5 @@ import {ModalModule} from 'modal-viewer';
 })
 export class HttpModule {
 }
+
+

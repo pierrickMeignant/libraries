@@ -1,20 +1,13 @@
-import {HttpProtocol} from '../types/http-protocol.enum';
 import {Api} from './api';
 import {HttpHeaders, HttpParams} from '@angular/common/http';
-import {EndpointsAccessor} from './endpoints-accessor';
 import {HttpPathParameters} from './http-path-parameters';
 import {Endpoint} from './endpoint';
-import {ServerBuilder} from '../builder/server-builder';
+import {ApisAccessor} from './apis-accessor';
 
-export class Server implements EndpointsAccessor {
+export class Server implements ApisAccessor {
   private endpointNames?: string[];
   private apiNames?: string[];
   constructor(private apis: Map<string, Api> = new Map<string, Api>()) {
-  }
-
-  static builder(host: string = 'localhost', port: number = 8080, protocol: HttpProtocol = HttpProtocol.HTTP,
-                 ...completeUrl: string[]): ServerBuilder {
-    return ServerBuilder.create(host, port, completeUrl, protocol);
   }
 
   getEndpoint<T extends any>(endpointName: string, headers?: HttpHeaders | { [p: string]: string | string[] },
@@ -42,7 +35,7 @@ export class Server implements EndpointsAccessor {
     return this.endpointsName.indexOf(endpointName) > -1;
   }
 
-  getApi(apiName: string): EndpointsAccessor | undefined {
+  getApi(apiName: string): ApisAccessor | undefined {
     return this.apis.get(apiName);
   }
 

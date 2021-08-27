@@ -1,17 +1,14 @@
 import {BehaviorSubject, Observable} from 'rxjs';
 import {ModalListener} from '../models/modal-listener';
-import {skip} from 'rxjs/operators';
 import {ModalEvent} from '../models/modal-event';
 import {ModalController} from '../models/modal-controller';
 import {ModalType} from '../models/modal-type';
-import {ModalTimeoutUnit} from '../models/modal-timeout-unit';
-import {ColorWait} from '../models/color-wait.enum';
 import {ModalEnableRequest} from '../models/modal-enable-request';
-import {SubscriptionDestroyer} from 'subscription-destroyer';
 import {ModalContext} from '../models/modal-context';
 import {EventEmitter} from '@angular/core';
 import {ModalAction} from '../models/modal-action';
 import {ModalDisable} from '../models/modal-disable';
+import {Destroyer, toObservable} from 'commonlibraries';
 
 export class ModalUtilsImpl {
   static modalEmitter = new BehaviorSubject<ModalEnableRequest>({receiptListener: () => ModalUtilsImpl.prepareListener()});
@@ -22,27 +19,27 @@ export class ModalUtilsImpl {
   static reduceEvent = new BehaviorSubject<{reducing?: boolean, placement: number}>({placement: 1});
 
   static modalEnable(): Observable<ModalEnableRequest> {
-    return ModalUtilsImpl.toObservable(() => ModalUtilsImpl.modalEmitter);
+    return toObservable(() => ModalUtilsImpl.modalEmitter);
   }
 
   static beforeOpen(): Observable<ModalEvent> {
-    return ModalUtilsImpl.toObservable(() => ModalUtilsImpl.beforeOpenEvent);
+    return toObservable(() => ModalUtilsImpl.beforeOpenEvent);
   }
 
   static afterOpen(): Observable<ModalEvent> {
-    return ModalUtilsImpl.toObservable(() => ModalUtilsImpl.afterOpenEvent);
+    return toObservable(() => ModalUtilsImpl.afterOpenEvent);
   }
 
   static beforeClose(): Observable<ModalEvent> {
-    return ModalUtilsImpl.toObservable(() => ModalUtilsImpl.beforeCloseEvent);
+    return toObservable(() => ModalUtilsImpl.beforeCloseEvent);
   }
 
   static afterClose(): Observable<ModalEvent> {
-    return ModalUtilsImpl.toObservable(() => ModalUtilsImpl.afterCloseEvent);
+    return toObservable(() => ModalUtilsImpl.afterCloseEvent);
   }
 
   static reducing(): Observable<{reducing?: boolean, placement: number}> {
-    return ModalUtilsImpl.toObservable(() => ModalUtilsImpl.reduceEvent);
+    return toObservable(() => ModalUtilsImpl.reduceEvent);
   }
 
   static prepareListener(): BehaviorSubject<ModalListener | undefined> {
@@ -54,9 +51,9 @@ export class ModalUtilsImpl {
    * @param id id filter
    * @param modalController controller enable or disable
    */
-  static addEnableModal(id: () => string | undefined, modalController: ModalController | SubscriptionDestroyer): void {
+  static addEnableModal(id: () => string | undefined, modalController: ModalController | Destroyer): void {
     const controller = modalController as ModalController;
-    (modalController as SubscriptionDestroyer).addObservable(ModalUtilsImpl.modalEnable(), value => {
+    (modalController as Destroyer).addObservable(ModalUtilsImpl.modalEnable(), value => {
       if (value.id === id()) {
         if (value.isOpen) {
           setTimeout(() => value.receiptListener().next(controller.openWithListener(value.context)));
@@ -65,34 +62,6 @@ export class ModalUtilsImpl {
         }
       }
     })
-  }
-
-  static handlePropertyBoolean(property: boolean | 'true' | 'false'): boolean {
-    return typeof property === 'string' ? property === 'true' : property;
-  }
-
-  static transformStringToTimeoutUnit(unit: 'second' | 'millisecond' | 'minute'): ModalTimeoutUnit {
-    switch (unit) {
-      case 'second': return ModalTimeoutUnit.SECOND;
-      case 'minute': return ModalTimeoutUnit.MINUTE;
-      case 'millisecond':
-      default: return ModalTimeoutUnit.MILLISECOND;
-    }
-  }
-
-  static selectColor(color: 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
-    | 'green' | 'red' | 'yellow'): ColorWait {
-    switch (color) {
-      case 'blue': return ColorWait.BLUE;
-      case 'black': return ColorWait.BLACK;
-      case 'darkBlue': return ColorWait.DARK_BLUE;
-      case 'green': return ColorWait.GREEN;
-      case 'red': return ColorWait.RED;
-      case 'grey': return ColorWait.GREY;
-      case 'white': return ColorWait.WHITE;
-      case 'yellow': return ColorWait.YELLOW;
-      default: return ColorWait.DARK_BLUE;
-    }
   }
 
   /**
@@ -169,7 +138,7 @@ export class ModalUtilsImpl {
       action.before = () => {
         const observer = new BehaviorSubject<boolean>(false);
         setTimeout( () => before().next(() => observer),2);
-        return ModalUtilsImpl.toObservable(() => observer);
+        return toObservable(() => observer);
       }
     }
     if (after().observers.length > 0) {
@@ -178,9 +147,5 @@ export class ModalUtilsImpl {
       }
     }
     actions(action);
-  }
-
-  private static toObservable(emitter: () => BehaviorSubject<any>): Observable<any> {
-    return emitter().pipe(skip(1));
   }
 }

@@ -2,22 +2,32 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, Te
 import {SlideUtilsImpl} from '../../utils/slide-utils-impl';
 import {SlideItem} from '../../models/item/slide-item';
 import {SlideItemTemplate} from '../../models/item/slide-item-template';
-import {BehaviorSubject, Subscription} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {skip, take} from 'rxjs/operators';
-import {SlideTimeout} from '../../models/timeout/slide-timeout';
-import {SlideTimeoutUnit} from '../../types/slide-timeout-unit';
 import {SlideMove} from '../../types/slide-move';
 import {SlideEvent} from '../../models/slide-event';
 import {SlideContext} from '../../models/slide-context';
-import {SlideColor} from '../../types/slide-color';
-import {SlideColorRGB} from '../../types/slide-color-rgb';
+import {
+  Color,
+  ColorRGB,
+  colorToStyle,
+  Destroyer,
+  isColor, propertyColor,
+  propertyTimeToTimeout,
+  propertyToBoolean,
+  propertyUnitToTimeoutUnit,
+  Timeout,
+  timeoutToMillisecond,
+  TimeoutUnit,
+  toObservable
+} from 'commonlibraries';
 
 @Component({
   selector: 'slide',
   templateUrl: './slide.component.html',
   styleUrls: ['./slide.component.css']
 })
-export class SlideComponent implements OnInit, OnDestroy {
+export class SlideComponent extends Destroyer implements OnInit, OnDestroy {
   slideItems: SlideItemTemplate[] = [];
   @Output()
   slideEvent = new EventEmitter<SlideEvent>();
@@ -56,15 +66,15 @@ export class SlideComponent implements OnInit, OnDestroy {
     return this.slideContext.controlArrowNext!;
   }
 
-  get defaultColorArrowPrev(): SlideColor | SlideColorRGB | string {
+  get defaultColorArrowPrev(): Color | ColorRGB | string {
     return this.slideContext.colorArrowPrev!;
   }
 
-  get defaultColorArrowNext(): SlideColor | SlideColorRGB | string {
+  get defaultColorArrowNext():  Color | ColorRGB | string {
     return this.slideContext.colorArrowNext!;
   }
 
-  get defaultColorIndicators(): SlideColor | SlideColorRGB | string {
+  get defaultColorIndicators():  Color | ColorRGB | string {
     return this.slideContext.colorIndicators!;
   }
 
@@ -74,32 +84,32 @@ export class SlideComponent implements OnInit, OnDestroy {
 
   private slideContext: SlideContext = {
     items: [],
-    fade: true,
     active: -1,
     autoSwitch: true,
-    timeout: {timeout: 5, unit: SlideTimeoutUnit.SECONDS},
+    timeout: {time: 5, unit: TimeoutUnit.SECOND},
     circle: true,
     directIndicators: true,
     controlArrowNext: true,
     controlArrowPrev: true,
-    colorArrowPrev: SlideColor.WHITE,
-    colorArrowNext: SlideColor.WHITE,
-    colorIndicators: SlideColor.WHITE
+    colorArrowPrev: Color.WHITE,
+    colorArrowNext: Color.WHITE,
+    colorIndicators: Color.WHITE
   }
 
   private maxIndex = -1;
-  private slideIntervalSwitch?: any;
   private hasControlArrow = {
     next: true,
     prev: true
   };
   private firstTouch?: Touch;
   private slideMoveControllerEmitter = new BehaviorSubject<SlideMove>(SlideMove.NEXT);
-  private listener?: Subscription;
   private item: SlideItem = {item: {}};
+  private indexInterval: number = 0;
 
 
-  constructor(private renderer: Renderer2) { }
+  constructor(private renderer: Renderer2) {
+    super();
+  }
 
   ngOnInit(): void {
     if (this.slideContext.autoSwitch) {
@@ -111,16 +121,8 @@ export class SlideComponent implements OnInit, OnDestroy {
 
     this.item = this.slideItems[this.slideContext.active!];
 
-    this.listener = this.slideMoveControllerEmitter.pipe(skip(1)).subscribe(value => this.startSwitch(value));
+    this.addObservable(toObservable(() => this.slideMoveControllerEmitter), value => this.startSwitch(value));
     this.slideMovecontroller.next(() => this.slideMoveControllerEmitter);
-  }
-
-  ngOnDestroy(): void {
-    if (this.slideIntervalSwitch) {
-      clearInterval(this.slideIntervalSwitch);
-    }
-    this.listener?.unsubscribe();
-    this.listener = undefined;
   }
 
   @Input()
@@ -187,31 +189,31 @@ export class SlideComponent implements OnInit, OnDestroy {
 
   @Input()
   set fade(fade: boolean | 'true' | 'false') {
-    this.slideContext.fade = SlideUtilsImpl.handlePropertyBoolean(fade);
+    this.slideContext.fade = propertyToBoolean(fade);
   }
 
   @Input()
   set controlArrow(controlArrow: boolean | 'true' | 'false') {
-    const hasControlArrow = SlideUtilsImpl.handlePropertyBoolean(controlArrow);
+    const hasControlArrow = propertyToBoolean(controlArrow);
     this.controlArrowNext = hasControlArrow;
     this.controlArrowPrev = hasControlArrow;
   }
 
   @Input()
   set controlArrowPrev(controlArrowPrev: boolean | 'true' | 'false') {
-    this.slideContext.controlArrowPrev = SlideUtilsImpl.handlePropertyBoolean(controlArrowPrev);
+    this.slideContext.controlArrowPrev = propertyToBoolean(controlArrowPrev);
     this.hasControlArrow.prev = this.slideContext.controlArrowPrev;
   }
 
   @Input()
   set controlArrowNext(controlArrowNext: boolean | 'true' | 'false') {
-    this.slideContext.controlArrowNext = SlideUtilsImpl.handlePropertyBoolean(controlArrowNext);
+    this.slideContext.controlArrowNext = propertyToBoolean(controlArrowNext);
     this.hasControlArrow.next = this.slideContext.controlArrowNext;
   }
 
   @Input()
   set indicators(indicators: boolean | 'true' | 'false') {
-    this.slideContext.indicators = SlideUtilsImpl.handlePropertyBoolean(indicators);
+    this.slideContext.indicators = propertyToBoolean(indicators);
   }
 
   @Input()
@@ -221,7 +223,7 @@ export class SlideComponent implements OnInit, OnDestroy {
 
   @Input()
   set items(items: SlideItem[] | {item: any, itemViewer?: TemplateRef<any>,
-    caption?: any, captionViewer?: TemplateRef<any>, colorArrow?: SlideColor, colorIndicator?: SlideColor}[] | any[]) {
+    caption?: any, captionViewer?: TemplateRef<any>, colorArrow?: Color, colorIndicator?: Color}[] | any[]) {
     const keys = Object.keys(items[0]);
     if (SlideComponent.hasKeys(keys, 'item', 'itemViewer', 'caption', 'captionViewer', 'colorArrow', 'colorIndicator')) {
       let indexActive = 0;
@@ -254,100 +256,61 @@ export class SlideComponent implements OnInit, OnDestroy {
   }
 
   @Input()
-  set timeout(seconds: SlideTimeout | {timeout: number, unit?: SlideTimeoutUnit | 'second' | 'millisecond' | 'minute'} | number) {
-    if (typeof seconds === 'number') {
-      this.slideContext.timeout = {timeout: seconds};
-    } else {
-      this.slideContext.timeout!.timeout = seconds.timeout;
-      if (seconds.unit) {
-        this.unit = seconds.unit;
-      }
-    }
-    if (!this.slideContext.timeout!.unit) {
-      this.slideContext.timeout!.unit = SlideTimeoutUnit.SECONDS;
+  set timeout(seconds: Timeout | {time: number, unit?: TimeoutUnit | 'second' | 'millisecond' | 'minute'} | number | string) {
+    const timeout = propertyTimeToTimeout(seconds);
+    if (timeout) {
+      this.slideContext.timeout = timeout;
     }
   }
 
   @Input()
-  set unit(unit: SlideTimeoutUnit | 'second' | 'millisecond' | 'minute') {
-    let slideTimeoutUnit: SlideTimeoutUnit;
-    if (typeof unit === 'string') {
-      switch (unit) {
-        case "millisecond": slideTimeoutUnit = SlideTimeoutUnit.MILLISECONDS; break;
-        case "minute": slideTimeoutUnit = SlideTimeoutUnit.MINUTES; break;
-        case "second":
-        default: slideTimeoutUnit = SlideTimeoutUnit.SECONDS;
-      }
-    } else {
-      slideTimeoutUnit = unit;
-    }
-    this.slideContext.timeout!.unit = slideTimeoutUnit;
+  set unit(unit: TimeoutUnit | 'second' | 'millisecond' | 'minute') {
+    this.slideContext.timeout!.unit = propertyUnitToTimeoutUnit(unit);
   }
 
   @Input()
   set autoSwitch(autoSwitchSlide: boolean | 'true' | 'false') {
-    this.slideContext.autoSwitch = SlideUtilsImpl.handlePropertyBoolean(autoSwitchSlide);
+    this.slideContext.autoSwitch = propertyToBoolean(autoSwitchSlide);
   }
 
   @Input()
   set vertical(isVertical: boolean | 'true' | 'false') {
-    this.slideContext.vertical = SlideUtilsImpl.handlePropertyBoolean(isVertical);
+    this.slideContext.vertical = propertyToBoolean(isVertical);
   }
 
   @Input()
   set circle(isCircle: boolean | 'true' | 'false') {
-    this.slideContext.circle = SlideUtilsImpl.handlePropertyBoolean(isCircle);
+    this.slideContext.circle = propertyToBoolean(isCircle);
   }
 
   @Input()
   set directIndicators(isDirectIndicators: boolean | 'true' | 'false') {
-    this.slideContext.directIndicators = SlideUtilsImpl.handlePropertyBoolean(isDirectIndicators);
+    this.slideContext.directIndicators = propertyToBoolean(isDirectIndicators);
   }
 
   @Input()
-  set colorArrow(colorArrow: SlideColor | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
-    | 'green' | 'red' | 'yellow' | SlideColorRGB | string) {
+  set colorArrow(colorArrow: Color | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
+    | 'green' | 'red' | 'yellow' | ColorRGB | string) {
     this.colorArrowNext = colorArrow;
     this.colorArrowPrev = colorArrow;
   }
 
   @Input()
-  set colorArrowPrev(colorArrow: SlideColor | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
-    | 'green' | 'red' | 'yellow' | SlideColorRGB | string) {
-    if (typeof colorArrow === 'string') {
-      this.slideContext.colorArrowPrev = SlideUtilsImpl.selectColor(colorArrow);
-      if (!this.slideContext.colorArrowPrev) {
-        this.slideContext.colorArrowPrev = colorArrow;
-      }
-    } else {
-      this.slideContext.colorArrowPrev = colorArrow;
-    }
+  set colorArrowPrev(colorArrow: Color | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
+    | 'green' | 'red' | 'yellow' | ColorRGB | string) {
+    this.slideContext.colorArrowPrev = propertyColor(colorArrow);
   }
 
   @Input()
-  set colorArrowNext(colorArrow: SlideColor | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
-    | 'green' | 'red' | 'yellow' | SlideColorRGB | string) {
-    if (typeof colorArrow === 'string') {
-      this.slideContext.colorArrowNext = SlideUtilsImpl.selectColor(colorArrow);
-      if (!this.slideContext.colorArrowNext) {
-        this.slideContext.colorArrowNext = colorArrow;
-      }
-    } else {
-      this.slideContext.colorArrowNext = colorArrow;
-    }
+  set colorArrowNext(colorArrow: Color | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
+    | 'green' | 'red' | 'yellow' | ColorRGB | string) {
+    this.slideContext.colorArrowNext = propertyColor(colorArrow);
   }
 
   @Input()
-  set colorIndicators(colorIndicators: SlideColor | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
-    | 'green' | 'red' | 'yellow' | SlideColorRGB | string) {
-    if (typeof colorIndicators === 'string') {
-      this.slideContext.colorIndicators = SlideUtilsImpl.selectColor(colorIndicators);
-      if (!this.slideContext.colorIndicators) {
-        this.slideContext.colorIndicators = colorIndicators;
-      }
-    } else {
-      this.slideContext.colorIndicators = colorIndicators;
-    }
+  set colorIndicators(colorIndicators: Color | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
+    | 'green' | 'red' | 'yellow' | ColorRGB | string) {
+    this.slideContext.colorIndicators = propertyColor(colorIndicators);
   }
 
   switchSlide(switcher: SlideMove): void {
@@ -373,7 +336,7 @@ export class SlideComponent implements OnInit, OnDestroy {
 
   carouselMouseEnter(): void {
     if (this.slideContext.autoSwitch) {
-      clearInterval(this.slideIntervalSwitch);
+      this.destroyInterval(this.indexInterval);
     }
   }
 
@@ -392,47 +355,44 @@ export class SlideComponent implements OnInit, OnDestroy {
     }
   }
 
-  isDarkBlue(color: SlideColor): boolean {
-    return color === SlideColor.DARK_BLUE;
+  isDarkBlue(color: Color): boolean {
+    return color === Color.DARK_BLUE;
   }
 
-  isGrey(color: SlideColor): boolean {
-    return color === SlideColor.GREY;
+  isGrey(color: Color): boolean {
+    return color === Color.GREY;
   }
 
-  isGreen(color: SlideColor): boolean {
-    return color === SlideColor.GREEN;
+  isGreen(color: Color): boolean {
+    return color === Color.GREEN;
   }
 
-  isRed(color: SlideColor): boolean {
-    return color === SlideColor.RED;
+  isRed(color: Color): boolean {
+    return color === Color.RED;
   }
 
-  isYellow(color: SlideColor): boolean {
-    return color === SlideColor.YELLOW;
+  isYellow(color: Color): boolean {
+    return color === Color.YELLOW;
   }
 
-  isBlue(color: SlideColor): boolean {
-    return color === SlideColor.BLUE;
+  isBlue(color: Color): boolean {
+    return color === Color.BLUE;
   }
 
-  isWhite(color: SlideColor): boolean {
-    return color === SlideColor.WHITE;
+  isWhite(color: Color): boolean {
+    return color === Color.WHITE;
   }
 
-  isBlack(color: SlideColor): boolean {
-    return color === SlideColor.BLACK;
+  isBlack(color: Color): boolean {
+    return color === Color.BLACK;
   }
 
-  isColor(color: SlideColor | SlideColorRGB | string): boolean {
-    return typeof color === 'number';
+  isColor(color: Color | ColorRGB | string): boolean {
+    return isColor(color);
   }
 
-  toRGB(colorRGB: SlideColorRGB | string): string {
-    if (typeof colorRGB === 'string') {
-      return colorRGB;
-    }
-    return `rgb(${colorRGB.red}, ${colorRGB.green}, ${colorRGB.blue})`;
+  toRGB(colorRGB: ColorRGB | string): string {
+    return colorToStyle(colorRGB);
   }
 
   private startSwitch(switcher: SlideMove): Promise<void> {
@@ -532,13 +492,11 @@ export class SlideComponent implements OnInit, OnDestroy {
   }
 
   private autoSlide(): void {
-    let timeout = this.slideContext.timeout!.timeout * (this.slideContext.timeout!.unit === SlideTimeoutUnit.SECONDS
-      ? 1000
-      : this.slideContext.timeout!.unit === SlideTimeoutUnit.MINUTES ? 60000 : 1);
+    let timeout = timeoutToMillisecond(this.slideContext.timeout!);
     if (timeout < 600) {
       timeout = 1400;
     }
-    this.slideIntervalSwitch = setInterval(() => {
+    this.indexInterval = this.createInterval(() => {
       this.startSwitch(SlideMove.NEXT).finally();
     }, timeout);
   }
