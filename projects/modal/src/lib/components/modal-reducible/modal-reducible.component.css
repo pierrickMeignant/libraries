@@ -1,3 +1,5 @@
+@import "~commonlibraries/lib/css/librariesStyle.css";
+
 .reduce ::ng-deep .modal {
   width: 20%!important;
   height: fit-content;

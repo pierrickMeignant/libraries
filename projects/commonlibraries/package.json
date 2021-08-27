@@ -1,20 +1,18 @@
 {
-  "name": "accordion-viewer",
-  "version": "0.0.3",
+  "name": "commonlibraries",
+  "version": "0.0.14",
   "peerDependencies": {
     "@angular/common": "^12.2.0",
     "@angular/core": "^12.2.0"
   },
   "dependencies": {
-    "tslib": "^2.3.0",
-    "bootstrap": "^5.1.0"
+    "tslib": "^2.3.0"
   },
   "keywords": [
     "angular12",
     "typescript",
-    "component-angular",
-    "accordion",
-    "bootstrap"
+    "common",
+    "utils"
   ],
   "author": "pmeignant",
   "license": "MIT",

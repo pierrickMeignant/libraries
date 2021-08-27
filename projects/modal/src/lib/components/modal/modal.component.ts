@@ -5,21 +5,27 @@ import {ModalController} from '../../models/modal-controller';
 import {ModalContext} from '../../models/modal-context';
 import {ModalType} from '../../models/modal-type';
 import {ModalUtilsImpl} from '../../utils/modal-utils-impl';
-import {ModalTimeout} from '../../models/modal-timeout';
 import {ModalAction} from '../../models/modal-action';
 import {ModalDisable} from '../../models/modal-disable';
 import {ModalContent} from '../../models/modal-content';
 import {ModalListener} from '../../models/modal-listener';
-import {ModalTimeoutUnit} from '../../models/modal-timeout-unit';
-import {SubscriptionDestroyer} from 'subscription-destroyer';
 import {ModalOpenClose} from '../../models/modal-open-close';
+import {
+  Destroyer,
+  propertyTimeToTimeout,
+  propertyToBoolean,
+  propertyUnitToTimeoutUnit,
+  Timeout,
+  timeoutToMillisecond,
+  TimeoutUnit, toLimitObservable
+} from 'commonlibraries';
 
 @Component({
   selector: 'modal',
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.css'],
 })
-export class ModalComponent extends SubscriptionDestroyer implements OnInit, ModalController {
+export class ModalComponent extends Destroyer implements OnInit, ModalController {
   @Input()
   header?: TemplateRef<any>;
   @Input()
@@ -63,7 +69,6 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Mod
   };
 
   private currentContext: ModalContext = {};
-  private patternIsNumeric = new RegExp("[0-9]+");
   private type = ModalType.MODAL;
 
   constructor() {
@@ -103,33 +108,16 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Mod
   }
 
   @Input()
-  set timeout(timeout: number | string | ModalTimeout) {
-    const typeTimeout = typeof timeout;
-    if (!this.modalContext.timeout) {
-      this.modalContext.timeout = {};
-    }
-    if (typeTimeout === 'string') {
-      if (this.patternIsNumeric.test(timeout as string)) {
-        this.modalContext.timeout = {
-          timeout: Number(timeout)
-        };
-      }
-    } else if (typeTimeout === 'object'){
-      this.modalContext.timeout = timeout as ModalTimeout;
-
-    } else {
-      this.modalContext.timeout = {
-        timeout: timeout as number
-      };
-    }
+  set timeout(timeout: number | string | Timeout) {
+   this.modalContext.timeout = propertyTimeToTimeout(timeout);
   }
 
   @Input()
-  set timeoutUnit(unit: 'second' | 'minute' | 'millisecond' | ModalTimeoutUnit) {
+  set timeoutUnit(unit: 'second' | 'minute' | 'millisecond' | TimeoutUnit) {
     if (!this.modalContext.timeout) {
-      this.modalContext.timeout = {};
+      this.modalContext.timeout = {time: 5};
     }
-    this.modalContext.timeout.unit = typeof unit === 'string' ? ModalUtilsImpl.transformStringToTimeoutUnit(unit) : unit;
+    this.modalContext.timeout.unit = propertyUnitToTimeoutUnit(unit);
   }
 
   @Input()
@@ -169,57 +157,57 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Mod
 
   @Input()
   set backgroundDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.background = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.background = propertyToBoolean(disable);
   }
 
   @Input()
   set buttonDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.button = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.button = propertyToBoolean(disable);
   }
 
   @Input()
   set crossDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.cross = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.cross = propertyToBoolean(disable);
   }
 
   @Input()
   set headerDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.header = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.header = propertyToBoolean(disable);
   }
 
   @Input()
   set bodyDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.body = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.body = propertyToBoolean(disable);
   }
 
   @Input()
   set footerDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.footer = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.footer = propertyToBoolean(disable);
   }
 
   @Input()
   set decoratorDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.decorator = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.decorator = propertyToBoolean(disable);
   }
 
   @Input()
   set blackOverrideDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.blackOverride = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.blackOverride = propertyToBoolean(disable);
   }
 
   @Input()
   set centerDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.center = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.center = propertyToBoolean(disable);
   }
 
   @Input()
   set scrollableDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.scrollable = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.scrollable = propertyToBoolean(disable);
   }
 
   @Input()
   set active(isActive: boolean | 'true' | 'false') {
-    this.enable = ModalUtilsImpl.handlePropertyBoolean(isActive);
+    this.enable = propertyToBoolean(isActive);
   }
 
   set typeModal(type: ModalType) {
@@ -231,8 +219,8 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Mod
   }
 
   get hasTimeout(): any  {
-    return this.currentContext.timeout && this.currentContext.timeout.timeout
-           && this.currentContext.timeout.timeout > 0;
+    return this.currentContext.timeout && this.currentContext.timeout.time
+           && this.currentContext.timeout.time > 0;
   }
 
   get disables(): ModalDisable {
@@ -290,12 +278,12 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Mod
     setTimeout(() => this.activate('open'), 2);
     return {
       open: {
-        before: () => beforeOpen.asObservable().pipe(skip(1), take(1)),
-        after: () => afterOpen.asObservable().pipe(skip(1), take(1))
+        before: () => toLimitObservable(() => beforeOpen),
+        after: () => toLimitObservable(() => afterOpen)
       },
       close: {
-        before: () => beforeClose.asObservable().pipe(skip(1), take(1)),
-        after: () => afterClose.asObservable().pipe(skip(1), take(1))
+        before: () => toLimitObservable(() => beforeClose),
+        after: () => toLimitObservable(() => afterClose)
       }
     };
   }
@@ -396,7 +384,7 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Mod
   private executeEnable(keyContext: 'open' | 'close'): void {
     this.enable = keyContext === 'open';
     if (this.isEnable && this.hasTimeout) {
-      setTimeout(() => this.activate('close'), this.timeoutExecute());
+      setTimeout(() => this.activate('close'), timeoutToMillisecond(this.modalContext.timeout!));
     }
     const after = this.currentContext[keyContext]?.after;
     if (after) {
@@ -407,17 +395,6 @@ export class ModalComponent extends SubscriptionDestroyer implements OnInit, Mod
     if (!this.isEnable) {
       this.currentContext = this.modalContext;
     }
-  }
-
-  private timeoutExecute(): number {
-    let convertorToMillisecond = 1;
-    switch (this.currentContext.timeout?.unit) {
-      case ModalTimeoutUnit.SECOND: convertorToMillisecond = 1000; break;
-      case ModalTimeoutUnit.MINUTE: convertorToMillisecond = 60000; break;
-      case ModalTimeoutUnit.MILLISECOND: convertorToMillisecond = 1; break;
-    }
-    const timeout = this.currentContext.timeout!.timeout!;
-    return timeout * convertorToMillisecond;
   }
 
   private sendBeforeEvent(keyContext: 'open' | 'close', value: boolean): void {

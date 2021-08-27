@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output, Renderer2, TemplateRef} 
 import {AccordionItem} from '../../models/accordion-item';
 import {AccordionEvent} from '../../events/accordion-event';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {skip, take} from 'rxjs/operators';
+import {toLimitObservable} from 'commonlibraries';
 
 @Component({
   selector: 'accordion',
@@ -82,6 +82,6 @@ export class AccordionComponent implements OnInit {
         finish.next();
       }, 0.35 * (heightContain + 1));
     }
-    return finish.pipe(skip(1), take(1));
+    return toLimitObservable(() => finish);
   }
 }

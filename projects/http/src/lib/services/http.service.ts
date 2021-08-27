@@ -9,7 +9,8 @@ import {HttpObserveType} from '../models/types/http-observe-type.enum';
 import {HttpResponseType} from '../models/types/http-response-type.enum';
 import {HttpObservable} from '../models/response/http-observable';
 import {HttpListenerImpl} from '../utils/http-listener-impl';
-import {skip, take} from 'rxjs/operators';
+import {take} from 'rxjs/operators';
+import {toLimitObservable} from 'commonlibraries';
 
 @Injectable({
   providedIn: 'root'
@@ -156,10 +157,10 @@ export class HttpService {
       HttpListenerImpl.downloadEmitter.next({
         endpoint: endpoint.nameEndpoint,
         type: 'start',
-        subscription: () => subscriptionReceived.pipe(skip(1), take(1)),
+        subscription: () => toLimitObservable(() => subscriptionReceived),
         id: () => identifyEmitter
       });
-      observableIdentify = identifyEmitter.pipe(skip(1), take(1));
+      observableIdentify = toLimitObservable(() => identifyEmitter);
     }
     return new HttpObservable<T>(observableIdentify, () => subscriptionReceived, sender(endpoint.url, body, clientOption),
       (identify, response) => HttpService.successEventRequest<B, T>(endpoint, identify, isHttpResponse, response, isDownload),

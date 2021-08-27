@@ -1,16 +1,16 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {SubscriptionDestroyer} from 'subscription-destroyer';
 import {HttpListenerImpl} from '../../utils/http-listener-impl';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {DownloadItem} from '../../models/download-item';
 import {ModalOpenClose} from 'modal-viewer';
+import {Destroyer} from 'commonlibraries';
 
 @Component({
   selector: 'http-downloader',
   templateUrl: './http-downloader.component.html',
   styleUrls: ['./http-downloader.component.css']
 })
-export class HttpDownloaderComponent extends SubscriptionDestroyer implements OnInit {
+export class HttpDownloaderComponent extends Destroyer implements OnInit {
   downloads = new Map<string, DownloadItem>();
 
   @Output()

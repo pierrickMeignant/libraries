@@ -4,8 +4,8 @@ import {ModalContext} from '../models/modal-context';
 import {ModalUtilsImpl} from './modal-utils-impl';
 import {skip, take} from 'rxjs/operators';
 import {ModalEvent} from '../models/modal-event';
-import {ModalTimeoutUnit} from '../models/modal-timeout-unit';
 import {ModalEnableRequest} from '../models/modal-enable-request';
+import {TimeoutUnit} from 'commonlibraries';
 
 export class ModalUtils {
   /**
@@ -16,7 +16,7 @@ export class ModalUtils {
    * @param unit unit timeout default: millisecond
    */
   static openModal(context?: ModalContext, id?: string, timeout?: number,
-                   unit?: ModalTimeoutUnit): Promise<ModalListener | undefined> {
+                   unit?: TimeoutUnit): Promise<ModalListener | undefined> {
     return ModalUtils.open(ModalUtilsImpl.modalEmitter, context, id, timeout, unit);
   }
 
@@ -26,7 +26,7 @@ export class ModalUtils {
 
   private static open(emitter: BehaviorSubject<ModalEnableRequest>,
                       context?: ModalContext, id?: string,
-                      timeout?: number, unit?: ModalTimeoutUnit,
+                      timeout?: number, unit?: TimeoutUnit,
                       ): Promise<ModalListener | undefined> {
     const copyContext = this.prepareContext(context, timeout, unit);
     const idTarget = context?.id ? context.id : id
@@ -53,12 +53,12 @@ export class ModalUtils {
   }
 
   private static prepareContext(context: ModalContext | undefined, timeout: number | undefined,
-                                unit: ModalTimeoutUnit | undefined): ModalContext | undefined {
+                                unit: TimeoutUnit | undefined): ModalContext | undefined {
     let copyContext: ModalContext | undefined = undefined;
     if (context) {
       copyContext = {
-        timeout: context?.timeout ? context.timeout : {
-          timeout: timeout,
+        timeout: context!.timeout ? context.timeout : {
+          time: timeout ? timeout : 5,
           unit: unit
         },
         open: context?.open,
@@ -69,7 +69,7 @@ export class ModalUtils {
     } else if (timeout){
       copyContext = {
         timeout: {
-          timeout,
+          time: timeout,
           unit
         }
       }

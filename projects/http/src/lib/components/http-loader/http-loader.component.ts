@@ -1,23 +1,23 @@
 import {Component, EventEmitter, Input, OnInit, Output, TemplateRef} from '@angular/core';
-import {ColorWait, ModalOpenClose, ShapeWait} from 'modal-viewer';
-import {SubscriptionDestroyer} from 'subscription-destroyer';
+import {ModalOpenClose, ShapeWait} from 'modal-viewer';
 import {HttpListener} from '../../utils/http-listener';
 import {HttpListenerImpl} from '../../utils/http-listener-impl';
+import {Color, ColorRGB, Destroyer} from 'commonlibraries';
 
 @Component({
   selector: 'http-loader',
   templateUrl: './http-loader.component.html',
   styleUrls: ['./http-loader.component.css']
 })
-export class HttpLoaderComponent extends SubscriptionDestroyer implements OnInit {
+export class HttpLoaderComponent extends Destroyer implements OnInit {
   @Input()
   shape: ShapeWait | 'round' | 'circle' = ShapeWait.CIRCLE;
   @Input()
-  color:  ColorWait | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
-    | 'green' | 'red' | 'yellow' = ColorWait.DARK_BLUE;
+  color:  Color | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
+    | 'green' | 'red' | 'yellow' | ColorRGB | string = Color.DARK_BLUE;
   @Input()
-  colorText:  ColorWait | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
-    | 'green' | 'red' | 'yellow' = ColorWait.DARK_BLUE;
+  colorText:  Color | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
+    | 'green' | 'red' | 'yellow' | ColorRGB | string = Color.DARK_BLUE;
   @Input()
   active: boolean | 'true' | 'false' = false;
   @Input()

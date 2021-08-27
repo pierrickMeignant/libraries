@@ -1,6 +1,5 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild} from '@angular/core';
 import {ShapeWait} from '../../models/shape-wait.enum';
-import {ColorWait} from '../../models/color-wait.enum';
 import {ModalController} from '../../models/modal-controller';
 import {ModalContext} from '../../models/modal-context';
 import {ModalListener} from '../../models/modal-listener';
@@ -9,15 +8,15 @@ import {ModalUtilsImpl} from '../../utils/modal-utils-impl';
 import {ModalComponent} from '../modal/modal.component';
 import {ModalType} from '../../models/modal-type';
 import {ModalAction} from '../../models/modal-action';
-import {SubscriptionDestroyer} from 'subscription-destroyer';
 import {ModalOpenClose} from '../../models/modal-open-close';
+import {Color, ColorRGB, colorToStyle, Destroyer, isColor, propertyColor, propertyToBoolean} from 'commonlibraries';
 
 @Component({
   selector: 'modal-wait',
   templateUrl: './modal-wait.component.html',
   styleUrls: ['./modal-wait.component.css']
 })
-export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit, ModalController, AfterViewInit {
+export class ModalWaitComponent extends Destroyer implements OnInit, ModalController, AfterViewInit {
 
   idWait?: string;
   @Input()
@@ -43,8 +42,8 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
   afterClose = new EventEmitter<void>();
 
   private shapeWait: ShapeWait = ShapeWait.ROUND;
-  private colorWait: ColorWait = ColorWait.DARK_BLUE;
-  private colorTextWait: ColorWait = ColorWait.DARK_BLUE;
+  private Color: Color | ColorRGB | string = Color.DARK_BLUE;
+  private colorTextWait:  Color | ColorRGB | string = Color.DARK_BLUE;
   private modalContext: ModalContext = {
     disables: {},
     open:{},
@@ -95,23 +94,15 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
   }
 
   @Input('color')
-  set colorModal(color: ColorWait | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
-  | 'green' | 'red' | 'yellow') {
-    if (typeof color === 'string') {
-      this.colorWait = ModalUtilsImpl.selectColor(color);
-    } else {
-      this.colorWait = color;
-    }
+  set colorModal(color: Color | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
+  | 'green' | 'red' | 'yellow' | ColorRGB | string) {
+    this.Color = propertyColor(color);
   }
 
   @Input('colorText')
-  set colorTextModal(colorText: ColorWait | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
-    | 'green' | 'red' | 'yellow') {
-    if (typeof colorText === 'string') {
-      this.colorTextWait = ModalUtilsImpl.selectColor(colorText);
-    } else {
-      this.colorTextWait = colorText;
-    }
+  set colorTextModal(colorText: Color | 'darkBlue' | 'blue' | 'grey' | 'black' | 'white'
+    | 'green' | 'red' | 'yellow' | ColorRGB | string) {
+    this.colorTextWait = propertyColor(colorText);
   }
 
   @Input()
@@ -126,17 +117,17 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
 
   @Input()
   set blackOverrideDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.blackOverride = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.blackOverride = propertyToBoolean(disable);
   }
 
   @Input()
   set centerDisable(disable: boolean | 'true' | 'false') {
-    this.modalContext.disables!.center = ModalUtilsImpl.handlePropertyBoolean(disable);
+    this.modalContext.disables!.center = propertyToBoolean(disable);
   }
 
   @Input()
   set active(isActive: boolean | 'true' | 'false') {
-     if (ModalUtilsImpl.handlePropertyBoolean(isActive)) {
+     if (propertyToBoolean(isActive)) {
        this.open();
      }
   }
@@ -145,11 +136,11 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
     return this.shapeWait;
   }
 
-  get color(): ColorWait {
-    return this.colorWait;
+  get color():  Color | ColorRGB | string {
+    return this.Color;
   }
 
-  get colorText(): ColorWait {
+  get colorText():  Color | ColorRGB | string {
     return this.colorTextWait;
   }
 
@@ -162,67 +153,67 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
   }
 
   get isDarkBlue(): boolean {
-    return ColorWait.DARK_BLUE === this.color;
+    return Color.DARK_BLUE === this.color;
   }
 
   get isBlue(): boolean {
-    return this.color === undefined || ColorWait.BLUE === this.color;
+    return this.color === undefined || Color.BLUE === this.color;
   }
 
   get isBlack(): boolean {
-    return ColorWait.BLACK === this.color;
+    return Color.BLACK === this.color;
   }
 
   get isGreen(): boolean {
-    return ColorWait.GREEN === this.color;
+    return Color.GREEN === this.color;
   }
 
   get isGrey(): boolean {
-    return ColorWait.GREY === this.color;
+    return Color.GREY === this.color;
   }
 
   get isRed(): boolean {
-    return ColorWait.RED === this.color;
+    return Color.RED === this.color;
   }
 
   get isWhite(): boolean {
-    return ColorWait.WHITE === this.color;
+    return Color.WHITE === this.color;
   }
 
   get isYellow(): boolean {
-    return ColorWait.YELLOW === this.color;
+    return Color.YELLOW === this.color;
   }
 
   get isDarkBlueText(): boolean {
-    return ColorWait.DARK_BLUE === this.colorText;
+    return Color.DARK_BLUE === this.colorText;
   }
 
   get isBlueText(): boolean {
-    return this.colorText === undefined || ColorWait.BLUE === this.colorText;
+    return this.colorText === undefined || Color.BLUE === this.colorText;
   }
 
   get isBlackText(): boolean {
-    return ColorWait.BLACK === this.colorText;
+    return Color.BLACK === this.colorText;
   }
 
   get isGreenText(): boolean {
-    return ColorWait.GREEN === this.colorText;
+    return Color.GREEN === this.colorText;
   }
 
   get isGreyText(): boolean {
-    return ColorWait.GREY === this.colorText;
+    return Color.GREY === this.colorText;
   }
 
   get isRedText(): boolean {
-    return ColorWait.RED === this.colorText;
+    return Color.RED === this.colorText;
   }
 
   get isWhiteText(): boolean {
-    return ColorWait.WHITE === this.colorText;
+    return Color.WHITE === this.colorText;
   }
 
   get isYellowText(): boolean {
-    return ColorWait.YELLOW === this.colorText;
+    return Color.YELLOW === this.colorText;
   }
 
   get isEnable(): boolean {
@@ -239,5 +230,13 @@ export class ModalWaitComponent extends SubscriptionDestroyer implements OnInit,
 
   openWithListener(context?: ModalContext): ModalListener | undefined {
     return this.modal?.openWithListener(context);
+  }
+
+  isColor(color: Color | ColorRGB | string): boolean {
+    return isColor(color);
+  }
+
+  toRGB(color: Color | ColorRGB | string): string {
+    return colorToStyle(color as (ColorRGB | string));
   }
 }
