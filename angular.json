@@ -196,6 +196,37 @@
           }
         }
       }
+    },
+    "socket": {
+      "projectType": "library",
+      "root": "projects/socket",
+      "sourceRoot": "projects/socket/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/socket/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/socket/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/socket/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/socket/src/test.ts",
+            "tsConfig": "projects/socket/tsconfig.spec.json",
+            "karmaConfig": "projects/socket/karma.conf.js"
+          }
+        }
+      }
     }
   },
   "defaultProject": "modal"

@@ -30,6 +30,10 @@
         "dist/slide/slide",
         "dist/slide"
       ],
+      "socket": [
+        "dist/socket/socket",
+        "dist/socket"
+      ],
       "subscription": [
         "dist/subscription/subscription",
         "dist/subscription"
