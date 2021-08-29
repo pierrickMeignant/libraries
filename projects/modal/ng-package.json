@@ -1,0 +1,12 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/modal",
+  "allowedNonPeerDependencies": ["commonlibraries", "bootstrap"],
+  "lib": {
+    "entryFile": "src/public-api.ts",
+    "umdModuleIds": {
+      "commonlibraries": "commonlibraries",
+      "commonlibraries/public-api.visible": "commonlibraries/public-api.visible"
+    }
+  }
+}

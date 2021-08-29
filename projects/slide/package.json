@@ -1,0 +1,29 @@
+{
+  "name": "slide-viewer",
+  "version": "1.0.1",
+  "peerDependencies": {
+    "@angular/common": "^12.2.0",
+    "@angular/core": "^12.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "commonlibraries": "1.0.0",
+    "bootstrap": "^5.1.0"
+  },
+  "keywords": [
+    "angular12",
+    "typescript",
+    "component-angular",
+    "carousel",
+    "slide",
+    "horizontal",
+    "vertical",
+    "bootstrap"
+  ],
+  "author": "pmeignant",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pierrickMeignant/libraries"
+  }
+}

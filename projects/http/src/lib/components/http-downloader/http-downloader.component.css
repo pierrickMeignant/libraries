@@ -1,0 +1,25 @@
+.bg-middle {
+  background-color: darkorange!important;
+}
+
+.img-download {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.download-disable {
+  opacity: 0.4;
+}
+
+.noReduce ::ng-deep #httpDownload .modal-dialog {
+  max-width: 40%;
+}
+
+::ng-deep #httpDownload .modal {
+  z-index: 1065;
+}
+
+::ng-deep  #httpDownload .modal-backdrop {
+  z-index: 1060;
+}

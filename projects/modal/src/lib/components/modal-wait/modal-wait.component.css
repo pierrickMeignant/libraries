@@ -1,0 +1,6 @@
+@import "~commonlibraries/lib/css/librariesStyle.css";
+
+.wait-size {
+  height: 3rem;
+  width: 3rem;
+}

@@ -1,0 +1,46 @@
+<ng-container *ngTemplateOutlet="id ? accordionId  : accordion"></ng-container>
+
+<ng-template #accordionId>
+  <div class="accordion" [id]="id" *ngIf="items">
+    <div class="accordion-item" *ngFor="let item of items;index as index">
+      <h2 class="accordion-header" [id]="id + '_accordion_header_' + index" [hidden]="couldOpen(header, body, contain, item)">
+        <button class="accordion-button collapsed" type="button"
+                (click)="expandOrReduce(body, contain, header, index, item)" [id]="id + '_accordion_button_' + index" #header>
+          {{item.header}}
+        </button>
+      </h2>
+      <div class="accordion-collapse collapse" [id]="id+ '_accordion_body_' + index" #body>
+        <div class="accordion-body" [id]="id + '_accordion_body_contain_' + index" #contain>
+          <ng-container [ngTemplateOutlet]="selectTemplateBody(item.body, bodyContainId)"
+                        [ngTemplateOutletContext]="{text: item.text, index: index, id: id}"></ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #accordion>
+  <div class="accordion" *ngIf="items">
+    <div class="accordion-item" *ngFor="let item of items;index as index">
+      <h2 class="accordion-header" [hidden]="couldOpen(header, body, contain, item)">
+        <button class="accordion-button collapsed" type="button" (click)="expandOrReduce(body, contain, header, index, item)" #header>
+          {{item.header}}
+        </button>
+      </h2>
+      <div class="accordion-collapse collapse" #body>
+        <div class="accordion-body" #contain>
+          <ng-container [ngTemplateOutlet]="selectTemplateBody(item.body, bodyContain)"
+                        [ngTemplateOutletContext]="{text: item.text, index: index, id: id}"></ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #bodyContainId let-text="text" let-index="index">
+  <span [id]="id + '_accordion_text_' + index">{{text}}</span>
+</ng-template>
+
+<ng-template #bodyContain let-text="text" let-index="index">
+  <span>{{text}}</span>
+</ng-template>
