@@ -1,0 +1,13 @@
+::ng-deep #httpErrorMessage button.accordion-button {
+  background-color: darkred;
+  color: white;
+  padding: 5px;
+}
+
+::ng-deep #httpError .modal-dialog {
+  max-width: 65%;
+}
+
+::ng-deep #httpErrorMessage button.collapsed {
+  background-color: firebrick;
+}

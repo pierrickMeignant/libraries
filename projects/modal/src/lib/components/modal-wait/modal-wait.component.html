@@ -1,0 +1,50 @@
+<modal [body]="bodyWAIT ? bodyWAIT : waitBody"
+       [id]="idWait"
+       buttonDisable="true" crossDisable="true" headerDisable="true" footerDisable="true"
+       backgroundDisable="true" scrollableDisable="true"
+       #modalWait></modal>
+
+<ng-template #waitBody>
+  <section class="row align-content-center align-items-center w-100">
+    <span class="col-2"></span>
+    <ng-container *ngIf="idWait">
+      <ng-container *ngIf="isColor(color)">
+        <div [id]="idWait + '_logo'" class="wait-size col-3 text-end" [ngClass]="{'spinner-grow': isRound, 'spinner-border': isCircle,
+                    'text-primary': isDarkBlue, 'text-secondary': isGrey, 'text-success': isGreen,
+                    'text-danger': isRed, 'text-warning': isYellow, 'text-info': isBlue, 'text-light': isWhite,
+                    'text-dark': isBlack}" role="status">
+        </div>
+        <span [id]="idWait + '_text'" class="col-5 text-start" [ngClass]="{'text-primary': isDarkBlue, 'text-secondary': isGrey, 'text-success': isGreen,
+                    'text-danger': isRed, 'text-warning': isYellow, 'text-info': isBlue, 'text-light': isWhite,
+                    'text-dark': isBlack}">{{ textWait ? textWait : 'Loading...'}}</span>
+      </ng-container>
+      <ng-container *ngIf="!isColor(color)">
+        <div [id]="idWait + '_logo'" class="wait-size col-3 text-end"
+             [ngClass]="{'spinner-grow': isRound, 'spinner-border': isCircle}"
+              role="status" [style.color]="toRGB(color)">
+        </div>
+        <span [id]="idWait + '_text'" class="col-5 text-start" [style.color]="toRGB(color)">{{ textWait ? textWait : 'Loading...'}}</span>
+      </ng-container>
+    </ng-container>
+    <ng-container *ngIf="!idWait">
+      <ng-container *ngIf="isColor(color)">
+        <div class="wait-size col-3 text-end" [ngClass]="{'spinner-grow': isRound, 'spinner-border': isCircle,
+                    'text-primary': isDarkBlue, 'text-secondary': isGrey, 'text-success': isGreen,
+                    'text-danger': isRed, 'text-warning': isYellow, 'text-info': isBlue, 'text-light': isWhite,
+                    'text-dark': isBlack}" role="status">
+        </div>
+        <span class="col-5 text-start" [ngClass]="{'text-primary': isDarkBlue, 'text-secondary': isGrey, 'text-success': isGreen,
+                    'text-danger': isRed, 'text-warning': isYellow, 'text-info': isBlue, 'text-light': isWhite,
+                    'text-dark': isBlack}">{{ textWait ? textWait : 'Loading...'}}</span>
+      </ng-container>
+      <ng-container *ngIf="!isColor(color)">
+        <div class="wait-size col-3 text-end"
+             [ngClass]="{'spinner-grow': isRound, 'spinner-border': isCircle}"
+             role="status" [style.color]="toRGB(color)">
+        </div>
+        <span class="col-5 text-start" [style.color]="toRGB(color)">{{ textWait ? textWait : 'Loading...'}}</span>
+      </ng-container>
+    </ng-container>
+    <span class="col-2"></span>
+  </section>
+</ng-template>

@@ -1,0 +1,60 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "paths": {
+      "accordion": [
+        "dist/accordion/accordion",
+        "dist/accordion"
+      ],
+      "commonlibraries": [
+        "dist/commonlibraries/commonlibraries",
+        "dist/commonlibraries"
+      ],
+      "http": [
+        "dist/http/http",
+        "dist/http"
+      ],
+      "modal": [
+        "dist/modal/modal",
+        "dist/modal"
+      ],
+      "slide": [
+        "dist/slide/slide",
+        "dist/slide"
+      ],
+      "socket": [
+        "dist/socket/socket",
+        "dist/socket"
+      ],
+      "subscription": [
+        "dist/subscription/subscription",
+        "dist/subscription"
+      ]
+    },
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2017",
+    "module": "es2020",
+    "lib": [
+      "es2018",
+      "dom"
+    ]
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}

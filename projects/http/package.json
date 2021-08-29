@@ -1,0 +1,29 @@
+{
+  "name": "http-apisender",
+  "version": "0.0.2",
+  "peerDependencies": {
+    "@angular/common": "^12.2.0",
+    "@angular/core": "^12.2.0",
+    "accordion-viewer": "^0.0.3",
+    "modal-viewer": "^0.0.16"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "commonlibraries": "0.0.13",
+    "bootstrap": "^5.1.0"
+  },
+  "keywords": [
+    "angular12",
+    "typescript",
+    "component-angular",
+    "http",
+    "builder",
+    "bootstrap"
+  ],
+  "author": "pmeignant",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pierrickMeignant/libraries"
+  }
+}

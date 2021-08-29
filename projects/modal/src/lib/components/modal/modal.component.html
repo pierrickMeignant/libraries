@@ -1,0 +1,49 @@
+<ng-container *ngIf="id">
+  <div class="modal fade show d-block" [id]="id" *ngIf="isEnable">
+    <div [id]="id + '_dialog'" class="modal-dialog" [ngClass]="{'modal-dialog-centered': !disables.center,
+  'modal-dialog-scrollable': !disables.scrollable}">
+      <div [id]="id + '_content'" class="modal-content" [ngClass]="{'no-background': disables.background}">
+        <div [id]="id + '_header'" class="modal-header" [ngClass]="{'border-0': disables.decorator}" *ngIf="!disables.header || !disables.cross">
+          <ng-container [ngTemplateOutlet]="header ? header : defaultHeader" *ngIf="!disables.header"
+                        [ngTemplateOutletContext]="{close: closeBind, id: id}"></ng-container>
+          <button [id]="id + '_cross'" type="button" class="btn-close" *ngIf="!disables.cross" (click)="close()"></button>
+        </div>
+        <div [id]="id + '_body'" class="modal-body" [ngClass]="{'border-0': disables.decorator}" *ngIf="!disables.body">
+          <ng-container [ngTemplateOutlet]="body" *ngIf="body" [ngTemplateOutletContext]="{close: closeBind, id: id}"></ng-container>
+        </div>
+        <div [id]="id + '_footer'" class="modal-footer" [ngClass]="{'border-0': disables.decorator}" *ngIf="!disables.footer">
+          <ng-container [ngTemplateOutlet]="footer" [ngTemplateOutletContext]="{close: closeBind, id: id}" *ngIf="footer"></ng-container>
+          <button [id]="id + '_buttonClose'" type="button" class="btn btn-secondary" (click)="close()" *ngIf="!disables.button">{{content.buttonCloseName}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [id]="id + '_blackOverride'" class="modal-backdrop fade show" *ngIf="isEnable && !disables.blackOverride"></div>
+</ng-container>
+<ng-container *ngIf="!id">
+  <div class="modal fade show d-block" *ngIf="isEnable">
+    <div class="modal-dialog" [ngClass]="{'modal-dialog-centered': !disables.center,
+  'modal-dialog-scrollable': !disables.scrollable}">
+      <div class="modal-content" [ngClass]="{'no-background': disables.background}">
+        <div class="modal-header" [ngClass]="{'border-0': disables.decorator}" *ngIf="!disables.header || !disables.cross">
+          <ng-container [ngTemplateOutlet]="header ? header : defaultHeader" *ngIf="!disables.header"
+                        [ngTemplateOutletContext]="{close: closeBind, id: id}"></ng-container>
+          <button type="button" class="btn-close" *ngIf="!disables.cross && !hasTimeout" (click)="close()"></button>
+        </div>
+        <div class="modal-body" [ngClass]="{'border-0': disables.decorator}" *ngIf="!disables.body">
+          <ng-container [ngTemplateOutlet]="body" *ngIf="body" [ngTemplateOutletContext]="{close: closeBind, id: id}"></ng-container>
+        </div>
+        <div class="modal-footer" [ngClass]="{'border-0': disables.decorator}" *ngIf="!disables.footer">
+          <ng-container [ngTemplateOutlet]="footer" [ngTemplateOutletContext]="{close: closeBind, id: id}" *ngIf="footer"></ng-container>
+          <button type="button" class="btn btn-secondary" (click)="close()" *ngIf="!disables.button && !hasTimeout">{{content.buttonCloseName}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" *ngIf="isEnable && !disables.blackOverride"></div>
+</ng-container>
+
+<ng-template #defaultHeader>
+  <h5 [id]="id + '_title'" class="modal-title" *ngIf="content.title && id">{{ content.title }}</h5>
+  <h5 class="modal-title" *ngIf="content.title && !id">{{ content.title }}</h5>
+</ng-template>
