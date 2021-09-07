@@ -37,6 +37,10 @@
       "subscription": [
         "dist/subscription/subscription",
         "dist/subscription"
+      ],
+      "tooltip": [
+        "dist/tooltip/tooltip",
+        "dist/tooltip"
       ]
     },
     "declaration": false,

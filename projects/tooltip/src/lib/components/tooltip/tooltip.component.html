@@ -1,0 +1,9 @@
+<div class="tooltip" [ngClass]="{'bs-tooltip-top': position === 0,
+'bs-tooltip-start': position === 1, 'bs-tooltip-end': position === 2,
+'bs-tooltip-bottom': position === 3, show: isShow}" [style.top]="top"
+     [style.left]="left" #tooltip>
+  <div class="tooltip-arrow"></div>
+  <div class="tooltip-inner">
+    Some tooltip text!
+  </div>
+</div>
