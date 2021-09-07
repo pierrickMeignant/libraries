@@ -5,6 +5,7 @@ import {mergeOption, mergeUrl} from './BuilderUtils';
 import {HttpBuilder} from './http-builder';
 import {HttpOption} from '../request/http-option';
 import {HttpHeaders} from '@angular/common/http';
+import {HttpMethod} from '../types/http-method';
 
 export class ApiBuilder<R> extends HttpBuilder<ApiBuilder<R>, R, Api>{
   private endpointsBuilder = new Map<string, (options: HttpOption | undefined) => Endpoint<any>>();
@@ -15,8 +16,9 @@ export class ApiBuilder<R> extends HttpBuilder<ApiBuilder<R>, R, Api>{
     this.builder = this;
   }
 
-  endpoint(name: string, addName: boolean = true, ...completeUrl: string[]): EndpointBuilder<R> {
-    return new EndpointBuilder(mergeUrl(this.baseUrl, name, addName, completeUrl), name,endpoint1 => {
+  endpoint(name: string, method: HttpMethod = HttpMethod.GET, addName: boolean = true, ...completeUrl: string[]): EndpointBuilder<R> {
+    return new EndpointBuilder(mergeUrl(this.baseUrl, name, addName, completeUrl), name, method,
+        endpoint1 => {
       this.endpointsBuilder.set(name, endpoint1);
       return this;
     });

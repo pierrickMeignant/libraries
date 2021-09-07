@@ -1,4 +1,4 @@
-import {HttpMethod} from '../types/http-method.enum';
+import {HttpMethod} from '../types/http-method';
 import {HttpErrorResponse} from '@angular/common/http';
 import {HttpPathParameters} from './http-path-parameters';
 import {HttpOption} from './http-option';
