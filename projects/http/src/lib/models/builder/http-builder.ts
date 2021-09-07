@@ -1,6 +1,6 @@
 import {HttpOption} from '../request/http-option';
 import {HttpHeaders} from '@angular/common/http';
-import {HttpResponseType} from '../types/http-response-type.enum';
+import {HttpResponseType} from '../types/http-response-type';
 import {copyOption, mergeOption} from './BuilderUtils';
 import {HttpBuilderHeader} from './http-builder-header';
 

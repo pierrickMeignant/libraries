@@ -1,6 +1,6 @@
 import {Api} from '../request/api';
 import {HttpOption} from '../request/http-option';
-import {HttpProtocol} from '../types/http-protocol.enum';
+import {HttpProtocol} from '../types/http-protocol';
 import {ApiBuilder} from './api-builder';
 import {HttpHeaders} from '@angular/common/http';
 import {Server} from '../request/server';
