@@ -6,6 +6,18 @@
     "@angular/core": "^12.2.0"
   },
   "dependencies": {
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "bootstrap": "^5.1.0"
+  },
+  "keywords": [
+    "typescript",
+    "socket",
+    "bootstrap"
+  ],
+  "author": "pmeignant",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pierrickMeignant/libraries"
   }
 }

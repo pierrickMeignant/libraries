@@ -1,11 +1,25 @@
 {
-  "name": "tooltip",
+  "name": "tooltip-viewer",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^12.2.0",
     "@angular/core": "^12.2.0"
   },
   "dependencies": {
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "bootstrap": "^5.1.0"
+  },
+  "keywords": [
+    "angular12",
+    "typescript",
+    "component-angular",
+    "tooltip",
+    "bootstrap"
+  ],
+  "author": "pmeignant",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pierrickMeignant/libraries"
   }
 }
